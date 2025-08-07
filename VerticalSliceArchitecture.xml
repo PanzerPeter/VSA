@@ -1,43 +1,77 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<vertical_slice_guidelines version="2.3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<vertical_slice_guidelines version="2.4" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <metadata>
-    <name>Vertical Slice Architecture - Unified Guidelines</name>
+    <name>Vertical Slice Architecture - Enhanced AI Guidelines</name>
     <created>2025-03-28</created>
-    <updated>2025-06-25</updated>
+    <updated>2025-08-07</updated>
     <scope>Software Architecture Pattern</scope>
-    <description>Vertical Slice Architecture (VSA), MUST activate when interacting with vertical slice architecture (VSA).</description>
+    <description>Vertical Slice Architecture (VSA) guidelines optimized for AI implementation</description>
     <priority>High</priority>
-    <instruction>MUST follow all of &lt;vertical_slice_guidelines&gt;</instruction>
+    <instruction>MUST follow all guidelines with clear prioritization and decision frameworks</instruction>
   </metadata>
-  
-  <terminology>
-    <term name="Vertical Slice">
-      <definition>A complete feature implementation that includes all necessary components (UI, business logic, data access) grouped together by business capability rather than technical layers</definition>
-      <alias>Feature Slice</alias>
-      <alias>Slice</alias>
-    </term>
-    <term name="Slice Handler">
-      <definition>The main component responsible for executing the business logic within a slice, coordinating between validation, business rules, and persistence</definition>
-      <alias>Handler</alias>
-      <note>Preferred term over "slice processor" or generic "handler"</note>
-    </term>
-    <term name="Slice Boundary">
-      <definition>The interface points where slices interact with external systems or other slices, including APIs, events, and shared data contracts</definition>
-    </term>
-    <term name="Domain Event">
-      <definition>An event that represents something meaningful that happened in the business domain, published by a slice to notify other slices</definition>
-      <alias>Business Event</alias>
-      <note>Used consistently throughout this document</note>
-    </term>
-    <term name="Feature">
-      <definition>A business capability that may be implemented as one or more slices, representing user-visible functionality</definition>
-      <distinction>Features are business concepts; slices are implementation units</distinction>
-    </term>
-    <term name="Cross-Cutting Concern">
-      <definition>Technical capabilities needed across multiple slices (logging, security, caching) that must be handled without violating slice boundaries</definition>
-    </term>
-  </terminology>
-  
+
+  <activation_triggers>
+    <description>Clear conditions when this rule should activate</description>
+    <trigger priority="high">User mentions "vertical slice", "VSA", or "feature-based architecture"</trigger>
+    <trigger priority="high">Project structure shows feature-based folders (features/, slices/, etc.)</trigger>
+    <trigger priority="high">User asks about organizing code by business capabilities</trigger>
+    <trigger priority="medium">User mentions CQRS, MediatR, or command/query patterns</trigger>
+    <trigger priority="medium">User discusses microservices decomposition strategies</trigger>
+    <trigger priority="low">User asks about reducing coupling between application layers</trigger>
+  </activation_triggers>
+
+  <implementation_priority>
+    <description>Clear hierarchy for implementation focus</description>
+    <level_1 name="Foundation">
+      <item>Establish slice boundaries based on business features</item>
+      <item>Ensure slice independence and loose coupling</item>
+      <item>Implement basic error handling within slices</item>
+    </level_1>
+    <level_2 name="Quality">
+      <item>Add comprehensive testing per slice</item>
+      <item>Implement cross-cutting concerns (logging, auth)</item>
+      <item>Establish consistent API patterns</item>
+    </level_2>
+    <level_3 name="Scale">
+      <item>Add monitoring and observability</item>
+      <item>Implement performance optimizations</item>
+      <item>Add advanced resilience patterns</item>
+    </level_3>
+  </implementation_priority>
+
+  <context_adaptation>
+    <description>Adjust guidance based on project characteristics</description>
+    <small_project threshold="under_10_slices">
+      <focus>Basic slice organization and independence</focus>
+      <skip>Complex monitoring, advanced resilience patterns</skip>
+      <simplify>Use minimal shared components</simplify>
+    </small_project>
+    <medium_project threshold="10_to_50_slices">
+      <focus>Consistent patterns, shared infrastructure</focus>
+      <add>Basic monitoring, standardized error handling</add>
+      <consider>Performance optimization for high-traffic slices</consider>
+    </medium_project>
+    <enterprise_project threshold="over_50_slices">
+      <implement>Full monitoring, security, migration patterns</implement>
+      <require>Comprehensive testing, observability</require>
+      <mandate>Consistent API design, resilience patterns</mandate>
+    </enterprise_project>
+    <legacy_migration>
+      <emphasize>Strangler fig patterns, rollback safety</emphasize>
+      <prioritize>Anti-corruption layers, data migration</prioritize>
+      <validate>Parallel running, canary deployments</validate>
+    </legacy_migration>
+  </context_adaptation>
+
+  <conflict_resolution>
+    <description>Clear resolution when principles conflict</description>
+    <primary_principle>Slice independence takes precedence over DRY principle</primary_principle>
+    <exception>Pure infrastructure components (DB connections, logging) can be shared</exception>
+    <exception>Utilities with no business logic dependencies can be extracted after 3+ duplications</exception>
+    <trade_off>Accept code duplication to maintain feature autonomy</trade_off>
+    <decision_rule>When in doubt, favor slice independence over shared abstractions</decision_rule>
+  </conflict_resolution>
+
   <definition>
     <core_concept>Feature-oriented code organization rather than technical layers</core_concept>
     <organization>
@@ -54,2472 +88,69 @@
       </feature>
     </example>
   </definition>
-  
-  <problem_solving>
-    <issue id="HighCoupling" severity="high">
-      <description>Excessive dependencies between system parts</description>
-      <solution>Isolate features into self-contained slices</solution>
-      <impact>Minimizes risk of unintended side effects when making changes</impact>
-    </issue>
-    <issue id="LowCohesion" severity="high">
-      <description>Related code scattered across technical layers</description>
-      <solution>Colocate all code related to a specific feature</solution>
-      <impact>Simplifies navigation and maintenance of features</impact>
-    </issue>
-    <issue id="UnnecessaryAbstractions" severity="medium">
-      <description>Over-engineered interfaces and layers</description>
-      <solution>Allow each slice to be tailored to its specific needs</solution>
-      <impact>Reduces boilerplate code and improves development efficiency</impact>
-    </issue>
-  </problem_solving>
-  
-  <comparison target="LayeredArchitecture">
-    <difference aspect="organization">
-      <layered>Horizontal separation by technical concerns</layered>
-      <vertical>Feature-based vertical organization</vertical>
-    </difference>
-    <difference aspect="coupling">
-      <layered>High coupling within layers, low between layers</layered>
-      <vertical>Tight coupling within slices, loose between slices</vertical>
-    </difference>
-    <difference aspect="change_impact">
-      <layered>Changes may affect multiple features sharing a layer</layered>
-      <vertical>Changes isolated to specific feature slices</vertical>
-    </difference>
-    <difference aspect="abstractions">
-      <layered>Mock-heavy, rigid rules around dependency management</layered>
-      <vertical>Most abstractions melt away, minimal cross-slice logic sharing</vertical>
-    </difference>
-    <difference aspect="approach_to_requests">
-      <layered>Monolithic, less flexible, same approach for all requests</layered>
-      <vertical>Treats each request as a distinct use case, tailored approach</vertical>
-    </difference>
-    <difference aspect="scalability">
-      <layered>Less scalable, changes to shared code risk side effects</layered>
-      <vertical>Scales well if team understands code smells and refactoring</vertical>
-    </difference>
-  </comparison>
-  
-  <benefits>
-    <benefit id="Isolation" impact="high">
-      <description>Changes to one feature are confined to its slice</description>
-      <example>Adding validation rules affects only the relevant feature</example>
-    </benefit>
-    <benefit id="Simplicity" impact="medium">
-      <description>Reduced cross-layer abstractions and boilerplate</description>
-      <example>No need for generic repository interfaces shared across features</example>
-    </benefit>
-    <benefit id="Flexibility" impact="high">
-      <description>Each slice can adopt appropriate design patterns</description>
-      <example>Simple CRUD features use transaction scripts, complex workflows use DDD</example>
-    </benefit>
-    <benefit id="BusinessAlignment" impact="high">
-      <description>Code organization mirrors business capabilities</description>
-      <example>Developers can understand features end-to-end</example>
-    </benefit>
-    <benefit id="AgileAlignment" impact="high">
-      <description>Feature-based organization aligns with agile practices</description>
-      <example>Facilitates delivery of vertical slices of functionality in sprints</example>
-      <insight>Enhances visibility and value delivery in sprint planning and delivery</insight>
-    </benefit>
-  </benefits>
-  
-  <drawbacks>
-    <drawback id="DuplicationRisk" severity="medium">
-      <description>Similar logic might be duplicated across slices</description>
-      <mitigation>Extract shared utilities when duplication becomes problematic</mitigation>
-      <example>Authentication or logging logic may be duplicated if not managed properly</example>
-    </drawback>
-    <drawback id="SkillDependency" severity="high">
-      <description>Requires developers skilled in refactoring</description>
-      <mitigation>Invest in training and code reviews</mitigation>
-      <impact>Without refactoring skills, codebase might degrade over time</impact>
-    </drawback>
-    <drawback id="Inconsistency" severity="medium">
-      <description>Different slices might be implemented differently</description>
-      <mitigation>Establish coding standards and architectural guidelines</mitigation>
-      <impact>Could complicate long-term maintenance without guidelines</impact>
-    </drawback>
-  </drawbacks>
-  
-  <cross_cutting_concerns>
-    <concern type="logging">
-      <approach>Inject logging interface into handlers</approach>
-      <implementation>Avoid shared logging classes across slices</implementation>
-      <pattern>Use structured logging with slice-specific context</pattern>
-      <example>
-        <![CDATA[
-class CreatePostHandler:
-    def __init__(self, logger):
-        self.logger = logger
-    
-    def handle(self, command):
-        self.logger.info("Creating post", {"feature": "create_post", "user_id": command.user_id})
-        ]]>
-      </example>
-    </concern>
-    <concern type="authorization">
-      <approach>Use decorators or middleware at slice boundaries</approach>
-      <pattern>Authorize at command/query level, not within handlers</pattern>
-      <implementation>Apply authorization before slice execution</implementation>
-      <example>
-        <![CDATA[
-@authorize_user
-def create_post_endpoint(command):
-    return CreatePostHandler().handle(command)
-        ]]>
-      </example>
-    </concern>
-    <concern type="caching">
-      <approach>Slice-specific caching strategies</approach>
-      <pattern>Cache at slice output level, not within handlers</pattern>
-      <implementation>Use cache keys that include slice context</implementation>
-    </concern>
-    <concern type="validation">
-      <approach>Validation specific to each slice's requirements</approach>
-      <pattern>Validate input at slice entry point</pattern>
-      <implementation>Allow different validation strategies per slice</implementation>
-    </concern>
-  </cross_cutting_concerns>
-  
-  <error_handling>
-    <principle>Each slice handles its own errors appropriately while maintaining boundary isolation</principle>
-    <rationale>Proper error handling prevents cascading failures and provides clear debugging information</rationale>
-    
-    <error_classification>
-      <business_errors>
-        <description>Errors related to business rule violations or invalid user input</description>
-        <handling>Return appropriate HTTP status codes (400-499) with meaningful error messages</handling>
-        <examples>
-          <example>Validation failures (required fields, format validation)</example>
-          <example>Authorization failures (insufficient permissions)</example>
-          <example>Business rule violations (account balance insufficient)</example>
-        </examples>
-      </business_errors>
-      
-      <infrastructure_errors>
-        <description>Errors related to technical systems and external dependencies</description>
-        <handling>Return 5xx status codes, log details, attempt recovery where possible</handling>
-        <examples>
-          <example>Database connection failures</example>
-          <example>External API timeouts</example>
-          <example>Network connectivity issues</example>
-        </examples>
-      </infrastructure_errors>
-      
-      <slice_boundary_errors>
-        <description>Errors that occur when communicating with other slices</description>
-        <handling>Implement circuit breakers, retries, and graceful degradation</handling>
-        <examples>
-          <example>Downstream slice returning errors</example>
-          <example>Event publishing failures</example>
-          <example>Timeout waiting for slice response</example>
-        </examples>
-      </slice_boundary_errors>
-    </error_classification>
-    
-    <error_handling_patterns>
-      <pattern name="Fail Fast Within Slice">
-        <description>Validate inputs early and fail immediately on invalid data</description>
-        <example>
-          <![CDATA[
-class CreatePostHandler:
-    def handle(self, command: CreatePostCommand):
-        # Fail fast on validation errors
-        self._validate_command(command)
-        
-        try:
-            result = self._execute_business_logic(command)
-            self._persist_changes(result)
-            self._publish_events(result)
-            return result
-        except ValidationError as e:
-            # Business error - don't retry, return immediately
-            self.logger.warning("Post creation validation failed", 
-                              extra={"slice": "create_post", "error": str(e)})
-            raise CreatePostValidationError(str(e)) from e
-        except DatabaseError as e:
-            # Infrastructure error - log and wrap
-            self.logger.error("Database error during post creation",
-                            extra={"slice": "create_post", "error": str(e)})
-            raise CreatePostInfrastructureError("Unable to save post") from e
-          ]]>
-        </example>
-      </pattern>
-      
-      <pattern name="Graceful Degradation at Boundaries">
-        <description>Handle external slice failures without breaking core functionality</description>
-        <example>
-          <![CDATA[
-class CreatePostHandler:
-    def handle(self, command: CreatePostCommand):
-        # Core functionality
-        post = self._create_post(command)
-        
-        # Optional enhancement - don't let it break core flow
-        try:
-            self._notify_subscribers(post)
-        except NotificationServiceError as e:
-            # Log the error but don't fail the entire operation
-            self.logger.warning("Failed to send notifications for new post",
-                              extra={"slice": "create_post", "post_id": post.id, "error": str(e)})
-            # Could queue for retry or use alternative notification method
-            
-        # Optional analytics - also non-critical
-        try:
-            self._track_analytics_event(post)
-        except AnalyticsServiceError as e:
-            self.logger.info("Analytics tracking failed", 
-                           extra={"slice": "create_post", "post_id": post.id})
-            
-        return post
-          ]]>
-        </example>
-      </pattern>
-      
-      <pattern name="Error Context Preservation">
-        <description>Maintain sufficient error context for debugging while avoiding information leakage</description>
-        <example>
-          <![CDATA[
-class CreatePostHandler:
-    def handle(self, command: CreatePostCommand):
-        correlation_id = command.correlation_id or str(uuid.uuid4())
-        
-        try:
-            return self._create_post(command)
-        except Exception as e:
-            # Preserve context for debugging
-            error_context = {
-                "slice": "create_post",
-                "correlation_id": correlation_id,
-                "user_id": command.user_id,
-                "operation": "create_post",
-                "timestamp": datetime.utcnow().isoformat()
-            }
-            
-            if isinstance(e, ValidationError):
-                # Safe to include validation details
-                error_context["validation_errors"] = e.errors
-                self.logger.warning("Validation failed", extra=error_context)
-                raise CreatePostValidationError("Invalid post data") from e
-            else:
-                # Infrastructure error - don't leak internal details
-                error_context["error_type"] = type(e).__name__
-                self.logger.error("Internal error", extra=error_context)
-                raise CreatePostInfrastructureError("Post creation failed") from e
-          ]]>
-        </example>
-      </pattern>
-    </error_handling_patterns>
-    
-    <error_response_design>
-      <consistent_format>
-        <description>Use consistent error response structure across all slices</description>
-        <structure>
-          <![CDATA[
-{
-  "error": {
-    "code": "VALIDATION_FAILED",           // Machine-readable error code
-    "message": "Post title cannot be empty",  // Human-readable message
-    "slice": "create_post",               // Source slice for debugging
-    "correlation_id": "req-123-abc",      // Request correlation ID
-    "timestamp": "2024-01-15T10:30:00Z",  // Error timestamp
-    "details": {                          // Additional context (optional)
-      "field": "title",
-      "constraint": "required"
-    }
-  }
-}
-          ]]>
-        </structure>
-      </consistent_format>
-      
-      <error_code_conventions>
-        <pattern>Use {SLICE_NAME}_{ERROR_TYPE} format for error codes</pattern>
-        <examples>
-          <example>CREATE_POST_VALIDATION_FAILED</example>
-          <example>LIST_POSTS_UNAUTHORIZED</example>
-          <example>UPDATE_USER_NOT_FOUND</example>
-        </examples>
-      </error_code_conventions>
-    </error_response_design>
-    
-    <recovery_strategies>
-      <automatic_retry>
-        <description>Automatically retry transient infrastructure errors</description>
-        <criteria>Only retry operations that are idempotent</criteria>
-        <implementation>Use exponential backoff with jitter and circuit breaker</implementation>
-      </automatic_retry>
-      
-      <fallback_mechanisms>
-        <description>Provide alternative behavior when slice dependencies fail</description>
-        <examples>
-          <example>Cache stale data when real-time data unavailable</example>
-          <example>Default values when configuration service unavailable</example>
-          <example>Queue operations for later processing when downstream services fail</example>
-        </examples>
-      </fallback_mechanisms>
-      
-      <compensation_actions>
-        <description>Implement compensating actions for distributed transaction failures</description>
-        <pattern>Each slice should provide compensation operations for rollback</pattern>
-        <example>If payment succeeds but order creation fails, compensate by refunding payment</example>
-      </compensation_actions>
-    </recovery_strategies>
-    
-    <monitoring_integration>
-      <error_metrics>
-        <metric>Error rate by slice and error type</metric>
-        <metric>Error response time distribution</metric>
-        <metric>Recovery success rate for retried operations</metric>
-      </error_metrics>
-      
-      <alerting_criteria>
-        <critical>Any error rate above 5% in a 5-minute window</critical>
-        <warning>Error rate above 1% sustained for 15 minutes</warning>
-        <info>New error types not seen in the last 24 hours</info>
-      </alerting_criteria>
-    </monitoring_integration>
-  </error_handling>
-  
-  <resilience_patterns>
-    <principle>Build resilience into slice boundaries to handle distributed system failures</principle>
-    <rationale>VSA slices often communicate across network boundaries, requiring robust failure handling</rationale>
-    
-    <circuit_breaker>
-      <description>Prevent cascading failures between slices by breaking circuit when error thresholds are exceeded</description>
-      <implementation>Apply circuit breakers at slice communication points, not within slice logic</implementation>
-      <example>
-        <![CDATA[
-class NotificationSlice:
-    def __init__(self, circuit_breaker):
-        self.circuit_breaker = circuit_breaker
-    
-    def handle_post_created(self, event):
-        try:
-            self.circuit_breaker.call(lambda: self._send_notification(event))
-        except CircuitBreakerOpenException:
-            self.logger.warning("Notification service unavailable, queuing for retry")
-            self._queue_for_retry(event)
-        ]]>
-      </example>
-      <configuration>
-        <failure_threshold>5 failures in 60 seconds</failure_threshold>
-        <recovery_timeout>30 seconds before attempting recovery</recovery_timeout>
-        <half_open_max_calls>3 test calls during recovery</half_open_max_calls>
-      </configuration>
-    </circuit_breaker>
-    
-    <retry_patterns>
-      <exponential_backoff>
-        <description>Use exponential backoff with jitter for transient failures</description>
-        <implementation>Apply retry logic at slice boundaries, not within core business logic</implementation>
-        <example>
-          <![CDATA[
-async def call_external_slice(self, request, max_retries=3):
-    for attempt in range(max_retries + 1):
-        try:
-            return await self._make_request(request)
-        except TransientError as e:
-            if attempt == max_retries:
-                raise
-            delay = (2 ** attempt) + random.uniform(0, 1)  # Jitter
-            await asyncio.sleep(delay)
-          ]]>
-        </example>
-      </exponential_backoff>
-      <idempotency>
-        <description>Ensure slice operations are idempotent to safely handle retries</description>
-        <pattern>Use idempotency keys for state-changing operations</pattern>
-        <example>Include unique request IDs that slices can use to detect duplicate requests</example>
-      </idempotency>
-    </retry_patterns>
-    
-    <timeout_patterns>
-      <description>Prevent resource exhaustion by applying appropriate timeouts</description>
-      <slice_level>Each slice should define its own timeout requirements</slice_level>
-      <cascading_timeouts>Downstream timeouts should be shorter than upstream timeouts</cascading_timeouts>
-      <example>API gateway timeout: 30s, Service timeout: 25s, Database timeout: 20s</example>
-    </timeout_patterns>
-    
-    <bulkhead_isolation>
-      <description>Isolate critical resources to prevent resource exhaustion</description>
-      <thread_pools>Use separate thread pools for different slice types (CPU vs I/O bound)</thread_pools>
-      <connection_pools>Separate database connection pools per slice or slice category</connection_pools>
-      <rate_limiting>Apply rate limiting at slice entry points to prevent overload</rate_limiting>
-    </bulkhead_isolation>
-  </resilience_patterns>
-  
-  <security_patterns>
-    <principle>Security must be designed into slice boundaries from the beginning</principle>
-    <rationale>VSA's distributed nature requires comprehensive security strategy across slice communication</rationale>
-    
-    <authentication>
-      <slice_entry_points>
-        <description>Apply authentication at slice entry points, not within slice logic</description>
-        <implementation>Use middleware or decorators to enforce authentication before slice execution</implementation>
-        <example>
-          <![CDATA[
-@authenticate_jwt
-@router.post("/posts")
-async def create_post(request: CreatePostRequest, user: User = Depends(get_current_user)):
-    command = CreatePostCommand(title=request.title, content=request.content, user_id=user.id)
-    return await CreatePostHandler().handle(command)
-          ]]>
-        </example>
-      </slice_entry_points>
-      
-      <jwt_patterns>
-        <description>Use JWT tokens with slice-specific claims for feature-level access control</description>
-        <claims_design>Include feature permissions in JWT claims rather than generic roles</claims_design>
-        <example>
-          <![CDATA[
-{
-  "sub": "user123",
-  "permissions": [
-    "posts:create",
-    "posts:read",
-    "comments:create"
-  ],
-  "slice_access": {
-    "create_post": true,
-    "moderate_content": false
-  }
-}
-          ]]>
-        </example>
-      </jwt_patterns>
-      
-      <service_authentication>
-        <description>Authenticate slice-to-slice communication using service accounts or mutual TLS</description>
-        <pattern>Each slice should have its own service identity for inter-slice communication</pattern>
-        <implementation>Use service mesh or API gateway for centralized authentication</implementation>
-      </service_authentication>
-    </authentication>
-    
-    <authorization>
-      <feature_based_permissions>
-        <description>Design permissions around business features rather than technical resources</description>
-        <example>Instead of "database_write", use "post_create" or "user_profile_update"</example>
-        <granularity>Permissions should align with slice boundaries for consistency</granularity>
-      </feature_based_permissions>
-      
-      <rbac_implementation>
-        <description>Role-Based Access Control applied at slice level</description>
-        <pattern>Define roles that map to collections of slice permissions</pattern>
-        <example>
-          <![CDATA[
-class PostSliceAuthorizer:
-    def can_create_post(self, user: User) -> bool:
-        return "content_creator" in user.roles or "admin" in user.roles
-    
-    def can_moderate_post(self, user: User, post: Post) -> bool:
-        return "moderator" in user.roles or post.author_id == user.id
-          ]]>
-        </example>
-      </rbac_implementation>
-      
-      <abac_for_complex_scenarios>
-        <description>Attribute-Based Access Control for complex business rules</description>
-        <use_case>When authorization depends on multiple attributes (user, resource, environment, action)</use_case>
-        <example>
-          <![CDATA[
-def can_access_financial_data(user, resource, context):
-    return (
-        user.department == "finance" and
-        resource.sensitivity_level <= user.clearance_level and
-        context.time_of_day.is_business_hours() and
-        context.network.is_internal()
-    )
-          ]]>
-        </example>
-      </abac_for_complex_scenarios>
-    </authorization>
-    
-    <data_protection>
-      <encryption_at_rest>
-        <description>Encrypt sensitive data within slice boundaries</description>
-        <implementation>Use field-level encryption for sensitive attributes</implementation>
-        <key_management>Each slice should have access only to keys for its own data</key_management>
-      </encryption_at_rest>
-      
-      <encryption_in_transit>
-        <description>All slice-to-slice communication must be encrypted</description>
-        <implementation>Use TLS 1.3 or higher for all inter-slice HTTP communication</implementation>
-        <certificate_management>Implement automated certificate rotation</certificate_management>
-      </encryption_in_transit>
-      
-      <pii_handling>
-        <description>Handle Personally Identifiable Information according to privacy regulations</description>
-        <slice_responsibility>Each slice handling PII must implement appropriate protections</slice_responsibility>
-        <data_minimization>Slices should only access PII necessary for their specific function</data_minimization>
-        <audit_trail>Log all PII access for compliance and security monitoring</audit_trail>
-      </pii_handling>
-    </data_protection>
-    
-    <input_validation>
-      <boundary_validation>
-        <description>Validate all inputs at slice entry points</description>
-        <principle>Never trust data crossing slice boundaries</principle>
-        <sanitization>Sanitize inputs to prevent injection attacks</sanitization>
-      </boundary_validation>
-      
-      <output_encoding>
-        <description>Encode outputs based on destination context</description>
-        <html_encoding>Encode data for HTML output to prevent XSS</html_encoding>
-        <json_encoding>Properly escape JSON outputs</json_encoding>
-      </output_encoding>
-    </input_validation>
-  </security_patterns>
-  
-  <testing_strategies>
-    <principle>VSA testing should validate slice independence and boundary contracts</principle>
-    <rationale>Slice-based architecture requires testing strategies that respect feature boundaries</rationale>
-    
-    <unit_testing>
-      <slice_isolation>
-        <description>Test each slice in complete isolation from other slices</description>
-        <mocking_strategy>Mock only external dependencies, not other slices</mocking_strategy>
-        <coverage_target>Aim for 80-90% test coverage within slice boundaries</coverage_target>
-        <example>
-          <![CDATA[
-class TestCreatePostHandler:
-    def test_creates_post_successfully(self):
-        # Arrange
-        mock_db = Mock()
-        mock_logger = Mock()
-        mock_event_publisher = Mock()
-        handler = CreatePostHandler(mock_db, mock_logger, mock_event_publisher)
-        command = CreatePostCommand(title="Test", content="Content", author_id=1)
-        
-        # Act
-        result = handler.handle(command)
-        
-        # Assert
-        mock_db.add.assert_called_once()
-        mock_event_publisher.publish.assert_called_once()
-        assert isinstance(result, int)
-          ]]>
-        </example>
-      </slice_isolation>
-      
-      <test_structure>
-        <organization>Mirror production slice structure in test organization</organization>
-        <naming>Use consistent naming conventions that reflect slice boundaries</naming>
-        <example>
-          <![CDATA[
-tests/
-  features/
-    create_post/
-      test_create_post_handler.py
-      test_create_post_validator.py
-      test_create_post_integration.py
-    list_posts/
-      test_list_posts_handler.py
-      test_list_posts_query.py
-          ]]>
-        </example>
-      </test_structure>
-      
-      <behavior_driven_testing>
-        <description>Use BDD to test slice behavior from business perspective</description>
-        <gherkin_scenarios>Write scenarios that describe slice behavior in business terms</gherkin_scenarios>
-        <example>
-          <![CDATA[
-Feature: Create Post
-  Scenario: User creates a valid post
-    Given the user is authenticated
-    When they submit a post with title "My Post" and content "Hello World"
-    Then the post should be created successfully
-    And a PostCreated event should be published
-    And the user should receive the new post ID
-          ]]>
-        </example>
-      </behavior_driven_testing>
-    </unit_testing>
-    
-    <integration_testing>
-      <slice_boundary_testing>
-        <description>Test communication between slices through their public interfaces</description>
-        <approach>Test slice boundaries without testing internal implementation</approach>
-        <event_testing>Verify event publishing and consumption between slices</event_testing>
-        <example>
-          <![CDATA[
-class TestPostCreationIntegration:
-    def test_post_creation_triggers_notification(self):
-        # Arrange
-        post_service = CreatePostService()
-        notification_service = NotificationService()
-        event_bus = InMemoryEventBus()
-        
-        # Act
-        post_id = post_service.create_post(CreatePostCommand(...))
-        
-        # Assert
-        events = event_bus.get_published_events()
-        assert any(isinstance(e, PostCreatedEvent) for e in events)
-        
-        # Verify notification slice received event
-        notifications = notification_service.get_pending_notifications()
-        assert len(notifications) == 1
-          ]]>
-        </example>
-      </slice_boundary_testing>
-      
-      <database_integration>
-        <testcontainers>
-          <description>Use TestContainers for database integration tests</description>
-          <isolation>Each test should run against a clean database instance</isolation>
-          <performance>Use database snapshots or fixtures for faster test execution</performance>
-        </testcontainers>
-        <transaction_testing>
-          <description>Test transaction boundaries align with slice boundaries</description>
-          <rollback_scenarios>Test that slice failures properly rollback their transactions</rollback_scenarios>
-        </transaction_testing>
-      </database_integration>
-      
-      <api_integration_testing>
-        <description>Test slice APIs using real HTTP requests</description>
-        <contract_testing>Use tools like Pact for consumer-driven contract testing</contract_testing>
-        <schema_validation>Validate API responses against OpenAPI/JSON schema</schema_validation>
-        <example>
-          <![CDATA[
-class TestCreatePostAPI:
-    def test_create_post_endpoint(self):
-        response = self.client.post("/api/posts", json={
-            "title": "Test Post",
-            "content": "Test Content"
-        }, headers={"Authorization": f"Bearer {self.jwt_token}"})
-        
-        assert response.status_code == 201
-        assert response.json()["id"] is not None
-        assert "Post created successfully" in response.json()["message"]
-          ]]>
-        </example>
-      </api_integration_testing>
-    </integration_testing>
-    
-    <end_to_end_testing>
-      <feature_focused>
-        <description>E2E tests should focus on complete feature workflows</description>
-        <user_journey>Test entire user journeys that span multiple slices</user_journey>
-        <minimal_coverage>Keep E2E tests minimal - focus on critical happy paths</minimal_coverage>
-      </feature_focused>
-      
-      <test_data_management>
-        <isolation>Each E2E test should manage its own test data</isolation>
-        <cleanup>Implement proper test data cleanup after each test</cleanup>
-        <factories>Use test data factories that understand slice boundaries</factories>
-      </test_data_management>
-    </end_to_end_testing>
-    
-    <performance_testing>
-      <slice_specific_metrics>
-        <description>Measure performance at slice level rather than system level</description>
-        <latency>Track P95 and P99 latency for each slice endpoint</latency>
-        <throughput>Measure requests per second per slice</throughput>
-        <resource_usage>Monitor CPU and memory usage per slice</resource_usage>
-      </slice_specific_metrics>
-      
-      <load_testing>
-        <realistic_scenarios>Design load tests based on realistic user behavior patterns</realistic_scenarios>
-        <slice_isolation>Test individual slice performance under load</slice_isolation>
-        <cascading_failures>Test how slice failures affect overall system performance</cascading_failures>
-      </load_testing>
-    </performance_testing>
-  </testing_strategies>
-  
-  <api_design_patterns>
-    <principle>API design should respect and reinforce slice boundaries</principle>
-    <rationale>Well-designed APIs make slice boundaries explicit and prevent tight coupling</rationale>
-    
-    <rest_patterns>
-      <resource_per_slice>
-        <description>Design REST resources that align with slice boundaries</description>
-        <principle>Each resource should map to a specific business capability</principle>
-        <example>
-          <![CDATA[
-// Good: Slice-aligned resources
-POST /api/posts              # CreatePost slice
-GET /api/posts               # ListPosts slice  
-GET /api/posts/{id}          # GetPost slice
-PUT /api/posts/{id}/publish  # PublishPost slice
 
-// Avoid: Generic CRUD that spans multiple slices
-PUT /api/posts/{id}          # Too generic, unclear which slice handles what
-          ]]>
-        </example>
-      </resource_per_slice>
-      
-      <versioning_strategy>
-        <description>Version APIs at slice level for independent evolution</description>
-        <semantic_versioning>Use semantic versioning for each slice API</semantic_versioning>
-        <backwards_compatibility>Maintain backwards compatibility within major versions</backwards_compatibility>
-        <example>
-          <![CDATA[
-// Version per slice capability
-GET /api/v1/posts              # ListPosts v1
-GET /api/v2/posts              # ListPosts v2 (enhanced filtering)
-POST /api/v1/posts             # CreatePost v1 (still supported)
-          ]]>
-        </example>
-      </versioning_strategy>
-      
-      <hypermedia_links>
-        <description>Use HATEOAS to make slice relationships explicit</description>
-        <discoverability>Include links to related slice operations</discoverability>
-        <example>
-          <![CDATA[
-{
-  "id": 123,
-  "title": "My Post",
-  "status": "draft",
-  "_links": {
-    "self": { "href": "/api/posts/123" },
-    "publish": { "href": "/api/posts/123/publish", "method": "PUT" },
-    "comments": { "href": "/api/posts/123/comments" }
-  }
-}
-          ]]>
-        </example>
-      </hypermedia_links>
-    </rest_patterns>
-    
-    <graphql_patterns>
-      <schema_federation>
-        <description>Use GraphQL federation to compose schemas from slice-specific schemas</description>
-        <implementation>Each slice exposes its own GraphQL schema</implementation>
-        <gateway>Use a GraphQL gateway to federate slice schemas</gateway>
-        <example>
-          <![CDATA[
-# posts-slice schema
-type Post @key(fields: "id") {
-  id: ID!
-  title: String!
-  content: String!
-  authorId: ID!
-}
+  <decision_trees>
+    <decision_tree name="slice_boundary_identification">
+      <condition>Does this functionality represent a complete business use case?</condition>
+      <yes>Create separate slice</yes>
+      <no>
+        <condition>Is this a variation of existing slice behavior?</condition>
+        <yes>Extend existing slice with parameters/configuration</yes>
+        <no>Consider if this should be part of a larger business capability</no>
+      </no>
+    </decision_tree>
 
-type Query {
-  post(id: ID!): Post
-  posts(limit: Int): [Post!]!
-}
+    <decision_tree name="shared_component_extraction">
+      <condition>Is this pure infrastructure with no business logic?</condition>
+      <yes>Safe to share - place in infrastructure layer</yes>
+      <no>
+        <condition>Is same logic duplicated across 3+ slices AND causing maintenance burden?</condition>
+        <yes>
+          <condition>Would extraction require slices to coordinate changes?</condition>
+          <yes>Do not extract - violates slice independence</yes>
+          <no>Consider extraction - evaluate coupling cost</no>
+        </yes>
+        <no>Keep duplicated - slice independence preferred</no>
+      </no>
+    </decision_tree>
 
-# comments-slice schema  
-type Comment {
-  id: ID!
-  content: String!
-  postId: ID!
-  post: Post
-}
+    <decision_tree name="refactoring_decision">
+      <condition>Is there demonstrable maintenance burden or performance issue?</condition>
+      <no>No action needed - avoid premature optimization</no>
+      <yes>
+        <condition>Can the issue be solved within slice boundaries?</condition>
+        <yes>Optimize within slice</yes>
+        <no>
+          <condition>Would cross-slice solution introduce coupling?</condition>
+          <yes>Accept current state or reconsider slice boundaries</yes>
+          <no>Implement shared solution with careful coupling analysis</no>
+        </no>
+      </yes>
+    </decision_tree>
+  </decision_trees>
 
-extend type Post @key(fields: "id") {
-  comments: [Comment!]!
-}
-          ]]>
-        </example>
-      </schema_federation>
-      
-      <query_complexity>
-        <description>Limit GraphQL query complexity to prevent abuse</description>
-        <slice_level_limits>Apply complexity limits appropriate to each slice</slice_level_limits>
-        <cost_analysis>Implement query cost analysis for resource-intensive slices</cost_analysis>
-      </query_complexity>
-    </graphql_patterns>
-    
-    <event_driven_apis>
-      <webhook_patterns>
-        <description>Use webhooks for slice-to-slice event communication</description>
-        <reliability>Implement retry mechanisms and dead letter queues</reliability>
-        <security>Sign webhook payloads for authenticity verification</security>
-        <example>
-          <![CDATA[
-# Webhook payload for PostCreated event
-{
-  "event_type": "post.created",
-  "event_id": "uuid-here",
-  "timestamp": "2023-12-01T10:30:00Z",
-  "data": {
-    "post_id": 123,
-    "title": "New Post",
-    "author_id": 456
-  },
-  "signature": "sha256=signature-here"
-}
-          ]]>
-        </example>
-      </webhook_patterns>
-      
-      <async_apis>
-        <description>Document async communication between slices</description>
-        <asyncapi_spec>Use AsyncAPI specification for event-driven APIs</asyncapi_spec>
-        <message_schemas>Define clear schemas for inter-slice messages</message_schemas>
-        <example>
-          <![CDATA[
-# AsyncAPI specification for PostCreated event
-channels:
-  post/created:
-    publish:
-      message:
-        name: PostCreated
-        payload:
-          type: object
-          properties:
-            postId:
-              type: integer
-            title:
-              type: string
-            authorId:
-              type: integer
-          ]]>
-        </example>
-      </async_apis>
-    </event_driven_apis>
-    
-    <error_response_patterns>
-      <consistent_format>
-        <description>Use consistent error response format across all slices</description>
-        <structure>Include error code, message, and slice context</structure>
-        <example>
-          <![CDATA[
-{
-  "error": {
-    "code": "VALIDATION_FAILED",
-    "message": "Post title cannot be empty",
-    "slice": "create_post",
-    "details": {
-      "field": "title",
-      "constraint": "required"
-    },
-    "request_id": "req-123"
-  }
-}
-          ]]>
-        </example>
-      </consistent_format>
-      
-      <http_status_codes>
-        <description>Use appropriate HTTP status codes that reflect slice operation results</description>
-        <business_errors>Use 4xx codes for business rule violations</business_errors>
-        <system_errors>Use 5xx codes for technical failures</system_errors>
-        <slice_specific>Allow slices to define their own error code mappings</slice_specific>
-      </http_status_codes>
-    </error_response_patterns>
-  </api_design_patterns>
-  
-  <monitoring_observability>
-    <principle>Observability should provide insights into slice behavior and health</principle>
-    <rationale>VSA requires monitoring that aligns with feature boundaries for effective operations</rationale>
-    
-    <metrics>
-      <slice_level_metrics>
-        <description>Collect metrics at slice granularity rather than system-wide</description>
-        <business_metrics>Track feature-specific KPIs (posts created, users registered)</business_metrics>
-        <technical_metrics>Monitor slice performance, error rates, and resource usage</technical_metrics>
-        <example>
-          <![CDATA[
-# Slice-specific metrics
-posts.create.requests_total{slice="create_post", status="success"} 1250
-posts.create.duration_seconds{slice="create_post", quantile="0.95"} 0.123
-posts.create.validation_errors_total{slice="create_post"} 45
-          ]]>
-        </example>
-      </slice_level_metrics>
-      
-      <sla_monitoring>
-        <description>Define and monitor SLAs at slice level</description>
-        <availability>Track slice availability independently</availability>
-        <latency>Monitor slice response time percentiles</latency>
-        <error_budget>Implement error budgets per slice</error_budget>
-      </sla_monitoring>
-    </metrics>
-    
-    <logging>
-      <structured_logging>
-        <description>Use structured logging with slice context</description>
-        <correlation_ids>Include correlation IDs that span slice interactions</correlation_ids>
-        <slice_identification>Always include slice identifier in log entries</slice_identification>
-        <example>
-          <![CDATA[
-{
-  "timestamp": "2023-12-01T10:30:00Z",
-  "level": "INFO",
-  "slice": "create_post",
-  "correlation_id": "req-123",
-  "user_id": "user-456",
-  "message": "Post created successfully",
-  "data": {
-    "post_id": 789,
-    "title": "New Post"
-  }
-}
-          ]]>
-        </example>
-      </structured_logging>
-      
-      <log_aggregation>
-        <description>Aggregate logs across slice instances while maintaining slice boundaries</description>
-        <centralized_collection>Use centralized logging with slice-based indexing</centralized_collection>
-        <retention_policies>Apply retention policies appropriate to each slice's compliance needs</retention_policies>
-      </log_aggregation>
-    </logging>
-    
-    <tracing>
-      <distributed_tracing>
-        <description>Implement distributed tracing across slice boundaries</description>
-        <trace_propagation>Propagate trace context through slice interactions</trace_propagation>
-        <span_naming>Use descriptive span names that include slice context</span_naming>
-        <example>
-          <![CDATA[
-# Trace spans for cross-slice operation
-create_post.handler.execute
-  ├── create_post.validation.validate_input
-  ├── create_post.database.insert_post  
-  ├── create_post.events.publish_post_created
-  └── notification.handler.send_notification
-          ]]>
-        </example>
-      </distributed_tracing>
-      
-      <performance_insights>
-        <description>Use tracing data to identify performance bottlenecks</description>
-        <slice_dependencies>Visualize dependencies between slices</slice_dependencies>
-        <critical_path>Identify critical paths in multi-slice operations</critical_path>
-      </performance_insights>
-    </tracing>
-  </monitoring_observability>
-  
-  <migration_strategies>
-    <principle>Provide systematic approaches for migrating from legacy architectures to VSA</principle>
-    <rationale>Most real-world systems require migration rather than greenfield implementation</rationale>
-    
-    <strangler_fig_patterns>
-      <description>Gradually replace legacy functionality with VSA slices</description>
-      <rationale>Reduces risk by allowing incremental migration with rollback capability</rationale>
-      
-      <boundary_identification>
-        <business_capability_mapping>
-          <description>Map existing code to business capabilities to identify natural slice boundaries</description>
-          <technique>Use event storming to identify business processes and their boundaries</technique>
-          <example>
-            <![CDATA[
-# Legacy monolith analysis
-Legacy Controllers -> Business Capabilities -> Target Slices
-UserController -> User Management -> [RegisterUser, AuthenticateUser, UpdateProfile]
-PostController -> Content Management -> [CreatePost, PublishPost, ModeratePost]
-CommentController -> Community Interaction -> [AddComment, ModerateComment]
-            ]]>
-          </example>
-        </business_capability_mapping>
-        
-        <dependency_analysis>
-          <description>Analyze existing dependencies to understand coupling patterns</description>
-          <tools>Use static analysis tools to map current dependencies</tools>
-          <approach>Identify highly coupled components that should remain together initially</approach>
-          <example>
-            <![CDATA[
-# Dependency analysis results
-High Coupling (keep together):
-- UserService + AuthService + PermissionService -> UserManagementSlice
+  <quick_reference>
+    <description>Fast lookup for common decisions</description>
+    <do>
+      <item>Organize code by business features, not technical layers</item>
+      <item>Make each slice independently deployable and testable</item>
+      <item>Accept reasonable code duplication to maintain independence</item>
+      <item>Share pure infrastructure components (DB, logging, caching)</item>
+      <item>Use events for cross-slice communication when needed</item>
+    </do>
+    <dont>
+      <item>Share business logic between slices just to avoid duplication</item>
+      <item>Create generic abstractions that multiple slices must coordinate to change</item>
+      <item>Let slices directly call each other's internal methods</item>
+      <item>Optimize prematurely - solve actual problems, not theoretical ones</item>
+    </dont>
+    <when_in_doubt>
+      <rule>Favor slice independence over shared abstractions</rule>
+      <rule>Implement the simplest solution that works</rule>
+      <rule>Refactor only when there's demonstrable pain</rule>
+    </when_in_doubt>
+  </quick_reference>
 
-Low Coupling (separate first):
-- NotificationService -> NotificationSlice
-- ReportingService -> ReportingSlice
-
-Medium Coupling (extract later):
-- PaymentService (depends on User, Order, Product)
-            ]]>
-          </example>
-        </dependency_analysis>
-      </boundary_identification>
-      
-      <extraction_order>
-        <description>Strategic order for extracting slices to maximize value and minimize risk</description>
-        <criteria>
-          <business_value>Prioritize features with high business impact and low technical risk</business_value>
-          <technical_isolation>Start with components that have minimal dependencies</technical_isolation>
-          <team_capacity>Consider team skills and bandwidth for each extraction</team_capacity>
-        </criteria>
-        <phases>
-          <phase id="1" name="Quick Wins">
-            <description>Extract simple, isolated features first</description>
-            <examples>Notifications, Logging, Reporting dashboards</examples>
-            <success_criteria>New slice deployed independently within 2-4 weeks</success_criteria>
-          </phase>
-          <phase id="2" name="Core Features">
-            <description>Extract main business capabilities</description>
-            <examples>User registration, Product catalog, Order processing</examples>
-            <success_criteria>Significant reduction in deployment coupling</success_criteria>
-          </phase>
-          <phase id="3" name="Complex Integration">
-            <description>Extract tightly coupled components</description>
-            <examples>Payment processing, Cross-feature analytics</examples>
-            <success_criteria>Legacy system becomes minimal orchestration layer</success_criteria>
-          </phase>
-        </phases>
-      </extraction_order>
-      
-      <rollback_safety>
-        <description>Ensure safe rollback at every migration step</description>
-        <feature_toggles>
-          <implementation>Use feature flags to switch between legacy and new slice implementations</implementation>
-          <example>
-            <![CDATA[
-# Feature flag implementation
-if feature_flag.is_enabled("new_user_registration"):
-    return NewUserRegistrationSlice().handle(request)
-else:
-    return LegacyUserController().register(request)
-            ]]>
-          </example>
-        </feature_toggles>
-        <data_synchronization>
-          <approach>Keep data synchronized between legacy and new systems during transition</approach>
-          <pattern>Use event sourcing or change data capture to maintain consistency</pattern>
-          <example>
-            <![CDATA[
-# Dual-write pattern during migration
-def create_user(user_data):
-    # Write to new slice
-    new_user_id = UserRegistrationSlice().create(user_data)
-    
-    # Write to legacy system for safety
-    legacy_user_id = LegacyUserService().create(user_data)
-    
-    # Store mapping for consistency checks
-    MigrationMapping().store(new_user_id, legacy_user_id)
-            ]]>
-          </example>
-        </data_synchronization>
-      </rollback_safety>
-    </strangler_fig_patterns>
-    
-    <legacy_integration>
-      <anti_corruption_layer>
-        <description>Create adapters to translate between legacy and VSA slice interfaces</description>
-        <purpose>Prevent legacy system complexity from leaking into new slice implementations</purpose>
-        <example>
-          <![CDATA[
-class LegacyUserAdapter:
-    """Adapter to translate between legacy user format and new slice format"""
-    
-    def __init__(self, legacy_user_service):
-        self.legacy_service = legacy_user_service
-    
-    def to_slice_format(self, legacy_user):
-        return UserSliceModel(
-            id=legacy_user.user_id,
-            email=legacy_user.email_address,
-            name=f"{legacy_user.first_name} {legacy_user.last_name}",
-            created_at=legacy_user.creation_date
-        )
-    
-    def to_legacy_format(self, slice_user):
-        return LegacyUser(
-            user_id=slice_user.id,
-            email_address=slice_user.email,
-            first_name=slice_user.name.split()[0],
-            last_name=" ".join(slice_user.name.split()[1:]),
-            creation_date=slice_user.created_at
-        )
-          ]]>
-        </example>
-      </anti_corruption_layer>
-      
-      <data_migration_patterns>
-        <bulk_migration>
-          <description>Migrate historical data in batches</description>
-          <implementation>Process data in chunks to avoid overwhelming the system</implementation>
-          <monitoring>Track migration progress and data consistency</monitoring>
-        </bulk_migration>
-        <incremental_migration>
-          <description>Migrate data as it's accessed or modified</description>
-          <lazy_loading>Transform data format when first accessed in new slice</lazy_loading>
-          <background_processing>Gradually migrate unused data in background processes</background_processing>
-        </incremental_migration>
-      </data_migration_patterns>
-    </legacy_integration>
-    
-    <validation_strategies>
-      <parallel_running>
-        <description>Run legacy and new implementations in parallel to compare results</description>
-        <shadow_traffic>Send production traffic to both systems, but only use legacy results</shadow_traffic>
-        <result_comparison>Compare outputs to identify discrepancies before switching</result_comparison>
-      </parallel_running>
-      
-      <canary_deployments>
-        <description>Gradually increase traffic to new slices</description>
-        <percentage_rollout>Start with 1% traffic, gradually increase to 100%</percentage_rollout>
-        <monitoring>Monitor error rates, performance, and business metrics</monitoring>
-        <automated_rollback>Automatically rollback if metrics exceed thresholds</automated_rollback>
-      </canary_deployments>
-    </validation_strategies>
-  </migration_strategies>
-  
-  <code_generation>
-    <principle>Provide consistent, production-ready templates for rapid slice development</principle>
-    <rationale>Standardized templates reduce development time and ensure architectural consistency</rationale>
-    
-    <slice_templates>
-      <python_fastapi>
-        <description>Complete Python FastAPI slice template with all best practices</description>
-        <directory_structure>
-          <![CDATA[
-features/
-  {slice_name}/
-    __init__.py
-    command.py          # Command/Query models
-    handler.py          # Business logic handler
-    validator.py        # Input validation
-    router.py           # FastAPI route definitions
-    repository.py       # Data access layer
-    events.py           # Domain events
-    exceptions.py       # Slice-specific exceptions
-    models.py           # Database models
-    schemas.py          # Pydantic schemas
-    tests/
-      test_handler.py
-      test_validator.py
-      test_integration.py
-      conftest.py
-          ]]>
-        </directory_structure>
-        <handler_template>
-          <![CDATA[
-# features/{slice_name}/handler.py
-from typing import Optional
-from sqlalchemy.orm import Session
-from .command import {SliceName}Command
-from .validator import {SliceName}Validator
-from .repository import {SliceName}Repository
-from .events import {SliceName}CompletedEvent
-from .exceptions import {SliceName}ValidationError, {SliceName}BusinessError
-
-class {SliceName}Handler:
-    def __init__(
-        self,
-        db_session: Session,
-        logger,
-        event_publisher,
-        validator: Optional[{SliceName}Validator] = None,
-        repository: Optional[{SliceName}Repository] = None
-    ):
-        self.db_session = db_session
-        self.logger = logger
-        self.event_publisher = event_publisher
-        self.validator = validator or {SliceName}Validator()
-        self.repository = repository or {SliceName}Repository(db_session)
-    
-    def handle(self, command: {SliceName}Command) -> dict:
-        """
-        Main handler for {slice_name} slice
-        
-        Args:
-            command: Validated command object
-            
-        Returns:
-            dict: Result of the operation
-            
-        Raises:
-            {SliceName}ValidationError: When input validation fails
-            {SliceName}BusinessError: When business rules are violated
-        """
-        try:
-            # Step 1: Validate input
-            self.validator.validate(command)
-            
-            # Step 2: Execute business logic
-            result = self._execute_business_logic(command)
-            
-            # Step 3: Persist changes
-            self.db_session.commit()
-            
-            # Step 4: Publish domain event
-            event = {SliceName}CompletedEvent(
-                entity_id=result.id,
-                command=command,
-                timestamp=datetime.utcnow()
-            )
-            self.event_publisher.publish(event)
-            
-            # Step 5: Log success
-            self.logger.info(
-                "{slice_name} completed successfully",
-                extra={
-                    "slice": "{slice_name}",
-                    "entity_id": result.id,
-                    "user_id": getattr(command, 'user_id', None)
-                }
-            )
-            
-            return {"id": result.id, "status": "success"}
-            
-        except {SliceName}ValidationError as e:
-            self.logger.warning(
-                "{slice_name} validation failed",
-                extra={"slice": "{slice_name}", "error": str(e)}
-            )
-            raise
-        except {SliceName}BusinessError as e:
-            self.logger.error(
-                "{slice_name} business rule violation",
-                extra={"slice": "{slice_name}", "error": str(e)}
-            )
-            raise
-        except Exception as e:
-            self.db_session.rollback()
-            self.logger.error(
-                "{slice_name} unexpected error",
-                extra={"slice": "{slice_name}", "error": str(e)}
-            )
-            raise {SliceName}BusinessError(f"Internal error: {str(e)}")
-    
-    def _execute_business_logic(self, command: {SliceName}Command):
-        """Implement specific business logic here"""
-        # TODO: Implement actual business logic
-        return self.repository.create(command.to_entity())
-          ]]>
-        </handler_template>
-        <test_template>
-          <![CDATA[
-# features/{slice_name}/tests/test_handler.py
-import pytest
-from unittest.mock import Mock, MagicMock
-from ..handler import {SliceName}Handler
-from ..command import {SliceName}Command
-from ..exceptions import {SliceName}ValidationError, {SliceName}BusinessError
-
-class Test{SliceName}Handler:
-    @pytest.fixture
-    def mock_dependencies(self):
-        return {
-            'db_session': Mock(),
-            'logger': Mock(),
-            'event_publisher': Mock(),
-            'validator': Mock(),
-            'repository': Mock()
-        }
-    
-    @pytest.fixture
-    def handler(self, mock_dependencies):
-        return {SliceName}Handler(**mock_dependencies)
-    
-    @pytest.fixture
-    def valid_command(self):
-        return {SliceName}Command(
-            # TODO: Add valid command parameters
-        )
-    
-    def test_successful_handling(self, handler, valid_command, mock_dependencies):
-        # Arrange
-        expected_result = Mock()
-        expected_result.id = 123
-        mock_dependencies['repository'].create.return_value = expected_result
-        
-        # Act
-        result = handler.handle(valid_command)
-        
-        # Assert
-        assert result['id'] == 123
-        assert result['status'] == 'success'
-        mock_dependencies['validator'].validate.assert_called_once_with(valid_command)
-        mock_dependencies['repository'].create.assert_called_once()
-        mock_dependencies['db_session'].commit.assert_called_once()
-        mock_dependencies['event_publisher'].publish.assert_called_once()
-    
-    def test_validation_error_handling(self, handler, valid_command, mock_dependencies):
-        # Arrange
-        mock_dependencies['validator'].validate.side_effect = {SliceName}ValidationError("Invalid input")
-        
-        # Act & Assert
-        with pytest.raises({SliceName}ValidationError):
-            handler.handle(valid_command)
-        
-        mock_dependencies['repository'].create.assert_not_called()
-        mock_dependencies['db_session'].commit.assert_not_called()
-    
-    def test_business_error_handling(self, handler, valid_command, mock_dependencies):
-        # Arrange
-        mock_dependencies['repository'].create.side_effect = {SliceName}BusinessError("Business rule violated")
-        
-        # Act & Assert
-        with pytest.raises({SliceName}BusinessError):
-            handler.handle(valid_command)
-        
-        mock_dependencies['db_session'].rollback.assert_called_once()
-    
-    def test_unexpected_error_handling(self, handler, valid_command, mock_dependencies):
-        # Arrange
-        mock_dependencies['repository'].create.side_effect = Exception("Database error")
-        
-        # Act & Assert
-        with pytest.raises({SliceName}BusinessError):
-            handler.handle(valid_command)
-        
-        mock_dependencies['db_session'].rollback.assert_called_once()
-          ]]>
-        </test_template>
-      </python_fastapi>
-      
-      <typescript_react>
-        <description>Complete TypeScript React slice template with modern patterns</description>
-        <directory_structure>
-          <![CDATA[
-src/features/
-  {slice-name}/
-    index.ts            # Public API exports
-    types.ts            # TypeScript type definitions
-    hooks.ts            # Custom React hooks
-    components/
-      {SliceName}.tsx   # Main component
-      {SliceName}.test.tsx
-      {SliceName}.stories.tsx
-    services/
-      {slice-name}Service.ts
-      {slice-name}Service.test.ts
-    utils/
-      validation.ts
-      validation.test.ts
-    __tests__/
-      integration.test.tsx
-          ]]>
-        </directory_structure>
-        <component_template>
-          <![CDATA[
-// src/features/{slice-name}/components/{SliceName}.tsx
-import React, { useState, useCallback } from 'react';
-import { use{SliceName}Service } from '../hooks';
-import { {SliceName}Request, {SliceName}Response } from '../types';
-import { validate{SliceName}Input } from '../utils/validation';
-
-interface {SliceName}Props {
-  onSuccess?: (result: {SliceName}Response) => void;
-  onError?: (error: Error) => void;
-  className?: string;
-}
-
-export const {SliceName}: React.FC<{SliceName}Props> = ({
-  onSuccess,
-  onError,
-  className = ""
-}) => {
-  const [formData, setFormData] = useState<Partial<{SliceName}Request>>({});
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [isLoading, setIsLoading] = useState(false);
-  
-  const { execute{SliceName} } = use{SliceName}Service();
-  
-  const handleSubmit = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    try {
-      // Validate input
-      const validationResult = validate{SliceName}Input(formData);
-      if (!validationResult.isValid) {
-        setErrors(validationResult.errors);
-        return;
-      }
-      
-      setIsLoading(true);
-      setErrors({});
-      
-      // Execute slice operation
-      const result = await execute{SliceName}(formData as {SliceName}Request);
-      
-      // Handle success
-      onSuccess?.(result);
-      setFormData({});
-      
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-      setErrors({ general: errorMessage });
-      onError?.(error instanceof Error ? error : new Error(errorMessage));
-    } finally {
-      setIsLoading(false);
-    }
-  }, [formData, execute{SliceName}, onSuccess, onError]);
-  
-  const handleInputChange = useCallback((field: keyof {SliceName}Request) => 
-    (value: string) => {
-      setFormData(prev => ({ ...prev, [field]: value }));
-      // Clear field error when user starts typing
-      if (errors[field]) {
-        setErrors(prev => ({ ...prev, [field]: '' }));
-      }
-    }, [errors]
-  );
-  
-  return (
-    <form onSubmit={handleSubmit} className={`{slice-name}-form ${className}`}>
-      {/* TODO: Add form fields based on {SliceName}Request type */}
-      
-      {errors.general && (
-        <div className="error-message" role="alert">
-          {errors.general}
-        </div>
-      )}
-      
-      <button 
-        type="submit" 
-        disabled={isLoading}
-        className="submit-button"
-      >
-        {isLoading ? 'Processing...' : 'Submit'}
-      </button>
-    </form>
-  );
-};
-          ]]>
-        </component_template>
-        <service_template>
-          <![CDATA[
-// src/features/{slice-name}/services/{slice-name}Service.ts
-import { {SliceName}Request, {SliceName}Response } from '../types';
-
-export class {SliceName}Service {
-  private baseUrl: string;
-  
-  constructor(baseUrl: string = '/api') {
-    this.baseUrl = baseUrl;
-  }
-  
-  async execute(request: {SliceName}Request): Promise<{SliceName}Response> {
-    const response = await fetch(`${this.baseUrl}/{slice-name}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${this.getAuthToken()}`
-      },
-      body: JSON.stringify(request)
-    });
-    
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.message || `HTTP ${response.status}: ${response.statusText}`);
-    }
-    
-    return response.json();
-  }
-  
-  private getAuthToken(): string {
-    // TODO: Implement authentication token retrieval
-    return localStorage.getItem('authToken') || '';
-  }
-}
-
-// Singleton instance
-export const {slice-name}Service = new {SliceName}Service();
-          ]]>
-        </service_template>
-      </typescript_react>
-      
-      <dotnet_mediatr>
-        <description>Complete .NET MediatR slice template with CQRS patterns</description>
-        <directory_structure>
-          <![CDATA[
-Features/
-  {SliceName}/
-    {SliceName}Command.cs
-    {SliceName}CommandHandler.cs
-    {SliceName}Validator.cs
-    {SliceName}Controller.cs
-    {SliceName}Response.cs
-    Models/
-      {SliceName}Entity.cs
-    Events/
-      {SliceName}CompletedEvent.cs
-    Exceptions/
-      {SliceName}ValidationException.cs
-      {SliceName}BusinessException.cs
-    Tests/
-      {SliceName}HandlerTests.cs
-      {SliceName}ControllerTests.cs
-          ]]>
-        </directory_structure>
-        <handler_template>
-          <![CDATA[
-// Features/{SliceName}/{SliceName}CommandHandler.cs
-using MediatR;
-using Microsoft.Extensions.Logging;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace YourApp.Features.{SliceName}
-{
-    public class {SliceName}CommandHandler : IRequestHandler<{SliceName}Command, {SliceName}Response>
-    {
-        private readonly IApplicationDbContext _context;
-        private readonly ILogger<{SliceName}CommandHandler> _logger;
-        private readonly IMediator _mediator;
-        private readonly I{SliceName}Validator _validator;
-        
-        public {SliceName}CommandHandler(
-            IApplicationDbContext context,
-            ILogger<{SliceName}CommandHandler> logger,
-            IMediator mediator,
-            I{SliceName}Validator validator)
-        {
-            _context = context;
-            _logger = logger;
-            _mediator = mediator;
-            _validator = validator;
-        }
-        
-        public async Task<{SliceName}Response> Handle(
-            {SliceName}Command request, 
-            CancellationToken cancellationToken)
-        {
-            try
-            {
-                // Step 1: Validate input
-                var validationResult = await _validator.ValidateAsync(request, cancellationToken);
-                if (!validationResult.IsValid)
-                {
-                    throw new {SliceName}ValidationException(validationResult.Errors);
-                }
-                
-                // Step 2: Execute business logic
-                var entity = await ExecuteBusinessLogicAsync(request, cancellationToken);
-                
-                // Step 3: Save changes
-                await _context.SaveChangesAsync(cancellationToken);
-                
-                // Step 4: Publish domain event
-                var domainEvent = new {SliceName}CompletedEvent
-                {
-                    EntityId = entity.Id,
-                    Timestamp = DateTime.UtcNow,
-                    UserId = request.UserId
-                };
-                await _mediator.Publish(domainEvent, cancellationToken);
-                
-                // Step 5: Log success
-                _logger.LogInformation(
-                    "{SliceName} completed successfully for entity {EntityId}",
-                    entity.Id);
-                
-                return new {SliceName}Response
-                {
-                    Id = entity.Id,
-                    Success = true,
-                    Message = "{SliceName} completed successfully"
-                };
-            }
-            catch ({SliceName}ValidationException ex)
-            {
-                _logger.LogWarning(ex, "{SliceName} validation failed");
-                throw;
-            }
-            catch ({SliceName}BusinessException ex)
-            {
-                _logger.LogError(ex, "{SliceName} business rule violation");
-                throw;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Unexpected error in {SliceName}");
-                throw new {SliceName}BusinessException($"Internal error: {ex.Message}", ex);
-            }
-        }
-        
-        private async Task<{SliceName}Entity> ExecuteBusinessLogicAsync(
-            {SliceName}Command request, 
-            CancellationToken cancellationToken)
-        {
-            // TODO: Implement actual business logic
-            var entity = new {SliceName}Entity
-            {
-                // Map from request to entity
-            };
-            
-            _context.{SliceName}s.Add(entity);
-            return entity;
-        }
-    }
-}
-          ]]>
-        </handler_template>
-      </dotnet_mediatr>
-    </slice_templates>
-    
-    <scaffolding_automation>
-      <cli_tool_specification>
-        <description>Command-line tool for generating slice scaffolding</description>
-        <usage>vsa generate slice --name CreatePost --tech python-fastapi --features auth,validation,events</usage>
-        <parameters>
-          <name>Slice name in PascalCase</name>
-          <technology>Target technology stack</technology>
-          <features>Optional features to include</features>
-          <database>Database integration type</database>
-        </parameters>
-      </cli_tool_specification>
-      
-      <template_customization>
-        <organization_templates>Allow teams to customize templates for their specific patterns</organization_templates>
-        <variable_substitution>Support for dynamic variable replacement in templates</variable_substitution>
-        <conditional_generation>Include/exclude code blocks based on specified features</conditional_generation>
-      </template_customization>
-    </scaffolding_automation>
-  </code_generation>
-  
-  <performance_optimization>
-    <principle>Optimize performance at slice boundaries while maintaining independence</principle>
-    <rationale>VSA systems must perform well despite distributed nature and slice boundaries</rationale>
-    
-    <caching_strategies>
-      <slice_level_caching>
-        <description>Cache data at slice input/output boundaries rather than internal caching</description>
-        <input_caching>Cache expensive validation or transformation operations</input_caching>
-        <output_caching>Cache slice results based on input parameters</output_caching>
-        <example>
-          <![CDATA[
-class CachedSliceHandler:
-    def __init__(self, cache_service, ttl_seconds=300):
-        self.cache = cache_service
-        self.ttl = ttl_seconds
-    
-    def handle(self, command):
-        # Check cache at slice boundary
-        cache_key = self._generate_cache_key(command)
-        cached_result = self.cache.get(cache_key)
-        
-        if cached_result:
-            return cached_result
-        
-        # Execute slice logic
-        result = self._execute_slice_logic(command)
-        
-        # Cache result at slice boundary
-        self.cache.set(cache_key, result, ttl=self.ttl)
-        return result
-    
-    def _generate_cache_key(self, command):
-        # Include slice name and command hash
-        return f"slice:list_posts:{hash(command)}"
-          ]]>
-        </example>
-      </slice_level_caching>
-      
-      <cache_invalidation>
-        <description>Invalidate caches when slices publish domain events</description>
-        <event_driven_invalidation>Listen to domain events to determine what to invalidate</event_driven_invalidation>
-        <pattern>Use event patterns to match which caches to invalidate</pattern>
-        <example>
-          <![CDATA[
-class EventDrivenCacheInvalidator:
-    def __init__(self, cache_service):
-        self.cache = cache_service
-        self.invalidation_rules = {
-            'PostCreatedEvent': ['slice:list_posts:*', 'slice:user_posts:*'],
-            'PostPublishedEvent': ['slice:published_posts:*'],
-            'UserUpdatedEvent': ['slice:user_profile:*']
-        }
-    
-    def handle_event(self, event):
-        event_type = event.__class__.__name__
-        patterns = self.invalidation_rules.get(event_type, [])
-        
-        for pattern in patterns:
-            if '*' in pattern:
-                self.cache.delete_pattern(pattern)
-            else:
-                self.cache.delete(pattern)
-          ]]>
-        </example>
-      </cache_invalidation>
-      
-      <cross_slice_caching>
-        <description>Share cached data between slices when appropriate</description>
-        <shared_read_models>Cache commonly accessed read models that multiple slices need</shared_read_models>
-        <cache_warming>Pre-populate caches with frequently accessed data</cache_warming>
-        <consistency_concerns>Ensure cache consistency across slice boundaries</consistency_concerns>
-      </cross_slice_caching>
-    </caching_strategies>
-    
-    <database_optimization>
-      <slice_specific_queries>
-        <description>Optimize database queries for each slice's specific use case</description>
-        <query_patterns>Design queries that match slice access patterns</query_patterns>
-        <index_strategy>Create indexes optimized for slice query patterns</index_strategy>
-        <example>
-          <![CDATA[
-# ListPosts slice - optimized for pagination and filtering
-class ListPostsRepository:
-    def get_posts(self, filters, pagination):
-        query = """
-        SELECT p.id, p.title, p.summary, p.created_at, u.name as author_name
-        FROM posts p
-        JOIN users u ON p.author_id = u.id
-        WHERE p.status = 'published'
-        AND p.created_at >= %(since)s
-        ORDER BY p.created_at DESC
-        LIMIT %(limit)s OFFSET %(offset)s
-        """
-        # Index: (status, created_at) for optimal filtering and sorting
-        return self.execute_query(query, {**filters, **pagination})
-
-# CreatePost slice - optimized for writes
-class CreatePostRepository:
-    def create_post(self, post_data):
-        # Optimized for fast inserts with minimal indexes
-        return self.insert("posts", post_data)
-          ]]>
-        </example>
-      </slice_specific_queries>
-      
-      <read_model_optimization>
-        <description>Create optimized read models for query-heavy slices</description>
-        <materialized_views>Use materialized views for complex aggregations</materialized_views>
-        <denormalization>Strategically denormalize data for read performance</denormalization>
-        <refresh_strategy>Update read models based on domain events</refresh_strategy>
-      </read_model_optimization>
-      
-      <connection_pooling>
-        <description>Optimize database connections per slice type</description>
-        <slice_specific_pools>Create separate connection pools for different slice characteristics</slice_specific_pools>
-        <pool_sizing>Size pools based on slice concurrency requirements</pool_sizing>
-        <example>Read-heavy slices get larger pools, write-heavy slices get smaller pools</example>
-      </connection_pooling>
-    </database_optimization>
-    
-    <scaling_patterns>
-      <horizontal_scaling>
-        <description>Scale slices independently based on load patterns</description>
-        <load_based_scaling>Monitor slice-specific metrics to trigger scaling</load_based_scaling>
-        <stateless_design>Ensure slices are stateless for horizontal scaling</stateless_design>
-        <example>
-          <![CDATA[
-# Kubernetes HPA for slice-specific scaling
-apiVersion: autoscaling/v2
-kind: HorizontalPodAutoscaler
-metadata:
-  name: list-posts-slice-hpa
-spec:
-  scaleTargetRef:
-    apiVersion: apps/v1
-    kind: Deployment
-    name: list-posts-slice
-  minReplicas: 2
-  maxReplicas: 10
-  metrics:
-  - type: Resource
-    resource:
-      name: cpu
-      target:
-        type: Utilization
-        averageUtilization: 70
-  - type: Pods
-    pods:
-      metric:
-        name: requests_per_second
-      target:
-        type: AverageValue
-        averageValue: "100"
-          ]]>
-        </example>
-      </horizontal_scaling>
-      
-      <resource_optimization>
-        <description>Optimize resource usage based on slice characteristics</description>
-        <cpu_optimization>CPU-bound slices get more CPU resources</cpu_optimization>
-        <memory_optimization>Memory-intensive slices get optimized memory allocation</memory_optimization>
-        <io_optimization>I/O-bound slices get optimized for disk/network access</io_optimization>
-      </resource_optimization>
-      
-      <load_balancing>
-        <description>Route requests to optimal slice instances</description>
-        <content_based_routing>Route based on request content to appropriate slice instances</content_based_routing>
-        <geographic_routing>Route to geographically closer slice instances</geographic_routing>
-        <health_aware_routing>Avoid routing to unhealthy slice instances</health_aware_routing>
-      </load_balancing>
-    </scaling_patterns>
-    
-    <performance_monitoring>
-      <slice_specific_metrics>
-        <description>Monitor performance metrics at slice granularity</description>
-        <latency_tracking>Track P50, P95, P99 latency per slice operation</latency_tracking>
-        <throughput_monitoring>Monitor requests per second per slice</throughput_monitoring>
-        <resource_utilization>Track CPU, memory, and I/O usage per slice</resource_utilization>
-      </slice_specific_metrics>
-      
-      <performance_alerting>
-        <description>Alert on slice-specific performance degradation</description>
-        <sla_violations>Alert when slice performance violates SLA thresholds</sla_violations>
-        <trend_analysis>Alert on performance trend degradation</trend_analysis>
-        <comparative_analysis>Alert when slice performance deviates from historical norms</comparative_analysis>
-      </performance_alerting>
-    </performance_monitoring>
-  </performance_optimization>
-  
-  <debugging_strategies>
-    <principle>Provide systematic approaches for debugging distributed slice-based systems</principle>
-    <rationale>VSA debugging requires understanding inter-slice communication and distributed system behavior</rationale>
-    
-    <slice_isolation_debugging>
-      <description>Debug slices in isolation to identify root causes</description>
-      
-      <local_reproduction>
-        <description>Reproduce slice issues in local development environment</description>
-        <slice_mocking>Mock other slices to isolate the problematic slice</slice_mocking>
-        <data_seeding>Use representative test data to reproduce issues</data_seeding>
-        <example>
-          <![CDATA[
-# Local debugging setup for CreatePost slice
-class CreatePostDebugSetup:
-    def setup_isolated_environment(self):
-        # Mock external slice dependencies
-        mock_user_service = Mock()
-        mock_notification_service = Mock()
-        
-        # Seed test data
-        test_user = User(id=1, email="test@example.com")
-        self.db.add(test_user)
-        
-        # Create handler with mocked dependencies
-        handler = CreatePostHandler(
-            db_session=self.db,
-            user_service=mock_user_service,
-            notification_service=mock_notification_service
-        )
-        
-        return handler
-    
-    def reproduce_issue(self, problematic_input):
-        handler = self.setup_isolated_environment()
-        
-        # Enable debug logging
-        logging.getLogger().setLevel(logging.DEBUG)
-        
-        # Execute with problematic input
-        try:
-            result = handler.handle(problematic_input)
-            print(f"Unexpected success: {result}")
-        except Exception as e:
-            print(f"Reproduced error: {e}")
-            import traceback
-            traceback.print_exc()
-          ]]>
-        </example>
-      </local_reproduction>
-      
-      <trace_correlation>
-        <description>Follow request traces across slice boundaries</description>
-        <correlation_ids>Use correlation IDs to track requests across slices</correlation_ids>
-        <distributed_tracing>Leverage distributed tracing tools for multi-slice operations</distributed_tracing>
-        <example>
-          <![CDATA[
-# Trace correlation across slices
-class TraceAnalyzer:
-    def analyze_request_flow(self, correlation_id):
-        # Get all traces for this correlation ID
-        traces = self.tracing_service.get_traces(correlation_id)
-        
-        # Build execution timeline
-        timeline = []
-        for trace in traces:
-            timeline.append({
-                'timestamp': trace.timestamp,
-                'slice': trace.service_name,
-                'operation': trace.operation_name,
-                'duration': trace.duration,
-                'status': trace.status,
-                'errors': trace.errors
-            })
-        
-        # Sort by timestamp
-        timeline.sort(key=lambda x: x['timestamp'])
-        
-        # Identify bottlenecks and errors
-        bottlenecks = [t for t in timeline if t['duration'] > 1000]  # >1s
-        errors = [t for t in timeline if t['status'] == 'error']
-        
-        return {
-            'timeline': timeline,
-            'bottlenecks': bottlenecks,
-            'errors': errors,
-            'total_duration': max(t['timestamp'] for t in timeline) - min(t['timestamp'] for t in timeline)
-        }
-          ]]>
-        </example>
-      </trace_correlation>
-      
-      <data_consistency_debugging>
-        <description>Debug data consistency issues between slices</description>
-        <consistency_checks>Automated checks for data consistency across slice boundaries</consistency_checks>
-        <state_snapshots>Capture system state at specific points for analysis</state_snapshots>
-        <event_replay>Replay events to understand state changes</event_replay>
-      </data_consistency_debugging>
-    </slice_isolation_debugging>
-    
-    <production_debugging>
-      <description>Safe debugging techniques for production environments</description>
-      
-      <health_check_debugging>
-        <description>Use comprehensive health checks to identify slice issues</description>
-        <dependency_health>Check health of slice dependencies</dependency_health>
-        <business_logic_health>Validate business logic assumptions</business_logic_health>
-        <example>
-          <![CDATA[
-class CreatePostHealthCheck:
-    def check_health(self):
-        health_status = {
-            'slice': 'create_post',
-            'status': 'healthy',
-            'checks': {}
-        }
-        
-        # Check database connectivity
-        try:
-            self.db.execute('SELECT 1')
-            health_status['checks']['database'] = 'healthy'
-        except Exception as e:
-            health_status['checks']['database'] = f'unhealthy: {e}'
-            health_status['status'] = 'unhealthy'
-        
-        # Check external service dependencies
-        try:
-            response = self.user_service.ping()
-            health_status['checks']['user_service'] = 'healthy'
-        except Exception as e:
-            health_status['checks']['user_service'] = f'unhealthy: {e}'
-        
-        # Check business logic assumptions
-        try:
-            recent_posts_count = self.db.query(Post).filter(
-                Post.created_at > datetime.now() - timedelta(hours=1)
-            ).count()
-            
-            if recent_posts_count > 1000:  # Unusual spike
-                health_status['checks']['business_logic'] = 'warning: unusual post creation rate'
-            else:
-                health_status['checks']['business_logic'] = 'healthy'
-        except Exception as e:
-            health_status['checks']['business_logic'] = f'error: {e}'
-        
-        return health_status
-          ]]>
-        </example>
-      </health_check_debugging>
-      
-      <safe_logging_strategies>
-        <description>Debug production issues through enhanced logging without performance impact</description>
-        <conditional_logging>Enable detailed logging for specific conditions</conditional_logging>
-        <sampling_logging>Log detailed information for a sample of requests</sampling_logging>
-        <async_logging>Use asynchronous logging to minimize performance impact</async_logging>
-      </safe_logging_strategies>
-      
-      <rollback_procedures>
-        <description>Safe rollback procedures when slice deployments fail</description>
-        <automated_rollback>Automatically rollback based on health check failures</automated_rollback>
-        <manual_rollback>Step-by-step manual rollback procedures</manual_rollback>
-        <data_migration_rollback>Safe rollback of data migrations</data_migration_rollback>
-      </rollback_procedures>
-    </production_debugging>
-    
-    <debugging_tools>
-      <slice_specific_dashboards>
-        <description>Create dashboards focused on individual slice health and performance</description>
-        <key_metrics>Display critical slice metrics in real-time</key_metrics>
-        <alert_integration>Integrate alerts directly into slice dashboards</alert_integration>
-      </slice_specific_dashboards>
-      
-      <log_analysis_tools>
-        <description>Tools for analyzing slice-specific logs</description>
-        <structured_log_queries>Predefined queries for common debugging scenarios</structured_log_queries>
-        <log_correlation>Tools to correlate logs across slice boundaries</log_correlation>
-      </log_analysis_tools>
-    </debugging_tools>
-  </debugging_strategies>
-  
-  <configuration_management>
-    <principle>Manage configuration complexity across multiple independent slices</principle>
-    <rationale>VSA systems have increased configuration complexity due to slice independence</rationale>
-    
-    <slice_configuration>
-      <description>Manage configuration at slice level while avoiding duplication</description>
-      
-      <environment_specific_config>
-        <description>Handle different configurations across environments</description>
-        <configuration_hierarchy>Base config + environment overrides + slice-specific overrides</configuration_hierarchy>
-        <validation>Validate configuration at slice startup</validation>
-        <implementation_example>
-          <![CDATA[
-# Configuration hierarchy with clear precedence
-# config/base.yaml - Global defaults
-database:
-  pool_size: 10
-  timeout: 30s
-  retry_attempts: 3
-logging:
-  level: INFO
-  format: json
-  output: stdout
-monitoring:
-  metrics_enabled: true
-  health_check_interval: 30s
-
-# config/environments/production.yaml - Environment overrides
-database:
-  pool_size: 20        # Production needs larger pools
-  timeout: 60s         # Production allows longer timeouts
-logging:
-  level: WARN          # Less verbose in production
-  output: file         # Log to files in production
-monitoring:
-  metrics_enabled: true
-  health_check_interval: 15s  # More frequent checks in production
-
-# config/slices/create_post.yaml - Slice-specific optimizations
-database:
-  pool_size: 5         # Create operations don't need large pools
-  connection_lifetime: 300s
-cache:
-  enabled: true
-  ttl: 300s
-  max_size: 1000
-business_rules:
-  max_title_length: 200
-  max_content_length: 10000
-  auto_save_enabled: true
-
-# Final merged configuration for CreatePost slice in production:
-# (base.yaml + production.yaml + create_post.yaml)
-database:
-  pool_size: 5              # from slice config (highest priority)
-  timeout: 60s              # from production config
-  retry_attempts: 3         # from base config
-  connection_lifetime: 300s # from slice config
-logging:
-  level: WARN               # from production config
-  format: json              # from base config
-  output: file              # from production config
-monitoring:
-  metrics_enabled: true     # from base config
-  health_check_interval: 15s # from production config
-cache:
-  enabled: true             # from slice config
-  ttl: 300s                 # from slice config
-  max_size: 1000           # from slice config
-business_rules:
-  max_title_length: 200     # from slice config
-  max_content_length: 10000 # from slice config
-  auto_save_enabled: true   # from slice config
-          ]]>
-        </implementation_example>
-        
-        <configuration_loading_pattern>
-          <![CDATA[
-# config/config_loader.py
-import yaml
-from pathlib import Path
-from typing import Dict, Any
-from dataclasses import dataclass
-
-@dataclass
-class ConfigurationSource:
-    name: str
-    path: Path
-    priority: int  # Higher number = higher priority
-
-class SliceConfigurationLoader:
-    """Loads and merges configuration for a specific slice"""
-    
-    def __init__(self, slice_name: str, environment: str = "development"):
-        self.slice_name = slice_name
-        self.environment = environment
-        self.config_dir = Path("config")
-    
-    def load_configuration(self) -> Dict[str, Any]:
-        """Load configuration with proper precedence order"""
-        sources = [
-            ConfigurationSource("base", self.config_dir / "base.yaml", 1),
-            ConfigurationSource("environment", 
-                              self.config_dir / "environments" / f"{self.environment}.yaml", 2),
-            ConfigurationSource("slice", 
-                              self.config_dir / "slices" / f"{self.slice_name}.yaml", 3)
-        ]
-        
-        merged_config = {}
-        for source in sources:
-            if source.path.exists():
-                config_data = self._load_yaml_file(source.path)
-                merged_config = self._deep_merge(merged_config, config_data)
-                print(f"Loaded {source.name} config from {source.path}")
-        
-        # Validate final configuration
-        self._validate_configuration(merged_config)
-        return merged_config
-    
-    def _load_yaml_file(self, path: Path) -> Dict[str, Any]:
-        """Load YAML file with error handling"""
-        try:
-            with open(path, 'r') as file:
-                return yaml.safe_load(file) or {}
-        except yaml.YAMLError as e:
-            raise ConfigurationError(f"Invalid YAML in {path}: {e}")
-        except FileNotFoundError:
-            return {}
-    
-    def _deep_merge(self, base: Dict[str, Any], override: Dict[str, Any]) -> Dict[str, Any]:
-        """Deep merge configuration dictionaries"""
-        result = base.copy()
-        for key, value in override.items():
-            if key in result and isinstance(result[key], dict) and isinstance(value, dict):
-                result[key] = self._deep_merge(result[key], value)
-            else:
-                result[key] = value
-        return result
-    
-    def _validate_configuration(self, config: Dict[str, Any]) -> None:
-        """Validate required configuration keys"""
-        required_keys = ["database", "logging"]
-        for key in required_keys:
-            if key not in config:
-                raise ConfigurationError(f"Missing required configuration section: {key}")
-
-# Usage in slice
-class CreatePostHandler:
-    def __init__(self):
-        config_loader = SliceConfigurationLoader("create_post", "production")
-        self.config = config_loader.load_configuration()
-        
-        # Access slice-specific configuration
-        self.max_title_length = self.config["business_rules"]["max_title_length"]
-        self.cache_ttl = self.config["cache"]["ttl"]
-          ]]>
-        </configuration_loading_pattern>
-      </environment_specific_config>
-      
-      <secrets_management>
-        <description>Securely manage secrets for individual slices</description>
-        <principle_of_least_privilege>Each slice only gets access to secrets it needs</principle_of_least_privilege>
-        <secret_rotation>Implement automatic secret rotation</secret_rotation>
-        <example>
-          <![CDATA[
-# Kubernetes secret management for slices
-apiVersion: v1
-kind: Secret
-metadata:
-  name: create-post-slice-secrets
-  namespace: production
-type: Opaque
-data:
-  database-password: <encrypted>
-  external-api-key: <encrypted>
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: create-post-slice
-spec:
-  template:
-    spec:
-      containers:
-      - name: create-post
-        env:
-        - name: DATABASE_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: create-post-slice-secrets
-              key: database-password
-        # This slice doesn't get access to other slices' secrets
-          ]]>
-        </example>
-      </secrets_management>
-      
-      <feature_flags>
-        <description>Use feature flags for slice-level rollouts and A/B testing</description>
-        <slice_level_flags>Enable/disable entire slices or slice features</slice_level_flags>
-        <gradual_rollout>Gradually increase traffic to new slice versions</gradual_rollout>
-        <example>
-          <![CDATA[
-class FeatureFlaggedSliceHandler:
-    def __init__(self, feature_flag_service):
-        self.flags = feature_flag_service
-    
-    def handle(self, command):
-        # Check if new implementation is enabled
-        if self.flags.is_enabled('create_post_v2', user_id=command.user_id):
-            return self.handle_v2(command)
-        else:
-            return self.handle_v1(command)
-    
-    def handle_v2(self, command):
-        # New implementation with enhanced features
-        pass
-    
-    def handle_v1(self, command):
-        # Stable implementation
-        pass
-          ]]>
-        </example>
-      </feature_flags>
-    </slice_configuration>
-    
-    <shared_configuration>
-      <description>Manage configuration that needs to be shared across slices</description>
-      
-      <when_to_share>
-        <description>Guidelines for when configuration should be shared vs slice-specific</description>
-        <shared_examples>Cross-cutting concerns like monitoring endpoints, global timeouts</shared_examples>
-        <slice_specific_examples>Business logic parameters, slice-specific optimizations</slice_specific_examples>
-        <decision_matrix>
-          <description>Guidelines for determining whether configuration should be shared or slice-specific</description>
-          <evaluation_criteria>
-            <criterion>Infrastructure vs. Business Logic: Infrastructure concerns should be shared</criterion>
-            <criterion>Operational Consistency: Operations teams need consistent interfaces</criterion>
-            <criterion>Performance Optimization: Slices may need different performance characteristics</criterion>
-            <criterion>Business Domain: Domain-specific logic should remain in slices</criterion>
-          </evaluation_criteria>
-          
-          <configuration_decisions>
-            <![CDATA[
-Configuration Type                    | Decision        | Level          | Rationale
--------------------------------------|-----------------|----------------|------------------------------------------
-Database connection string           | Shared          | Infrastructure | Single database instance, infrastructure concern
-Database pool size                   | Slice-Specific  | Performance    | Different slices have different load patterns
-Database timeout settings            | Environment     | Performance    | Environment-specific, but shared within environment
-Logging format/structure             | Shared          | Operational    | Operations teams need consistent log parsing
-Log level                           | Slice-Specific  | Performance    | Different slices need different verbosity
-Log output destination              | Environment     | Operational    | Environment-specific (console vs file vs service)
-External API base URLs              | Environment     | Infrastructure | Different endpoints for dev/staging/production
-External API retry policies         | Slice-Specific  | Reliability    | Different slices have different reliability needs
-External API timeout values         | Slice-Specific  | Performance    | Optimize for each slice's usage patterns
-Monitoring/health check endpoints   | Shared          | Operational    | Operations teams need consistent monitoring
-Performance metric collection       | Shared          | Operational    | Consistent metrics collection framework
-Business validation rules          | Slice-Specific  | Business       | Domain-specific logic, may evolve independently
-Feature flags/toggles               | Environment     | Business       | Environment-specific rollout strategies
-Cache TTL values                    | Slice-Specific  | Performance    | Different data has different staleness tolerance
-Cache storage backend               | Shared          | Infrastructure | Shared cache infrastructure
-Security token signing keys        | Environment     | Security       | Environment-specific, rotated independently
-Security validation rules          | Slice-Specific  | Security       | Different slices may have different security needs
-Rate limiting thresholds           | Slice-Specific  | Performance    | Different slices handle different load patterns
-Circuit breaker settings           | Slice-Specific  | Reliability    | Different failure modes require different settings
-            ]]>
-          </configuration_decisions>
-          
-          <decision_process>
-            <step id="1">Identify the primary concern: Infrastructure, Operational, Performance, Business, or Security</step>
-            <step id="2">Determine the scope of impact: Single slice, Multiple slices, or System-wide</step>
-            <step id="3">Consider change frequency: How often does this configuration need to change?</step>
-            <step id="4">Evaluate coupling risk: Would sharing this create undesirable dependencies?</step>
-            <step id="5">Apply the decision matrix above or escalate for architectural review</step>
-          </decision_process>
-        </decision_matrix>
-      </when_to_share>
-      
-      <configuration_distribution>
-        <description>Distribute shared configuration to slices efficiently</description>
-        <config_service>Central configuration service with slice subscription</config_service>
-        <cache_strategy>Cache configuration locally with refresh mechanisms</cache_strategy>
-        <change_notification>Notify slices when shared configuration changes</change_notification>
-      </configuration_distribution>
-      
-      <configuration_versioning>
-        <description>Version configuration changes to enable safe rollbacks</description>
-        <semantic_versioning>Use semantic versioning for configuration changes</semantic_versioning>
-        <backward_compatibility>Maintain backward compatibility for minor version changes</backward_compatibility>
-        <migration_scripts>Provide migration scripts for breaking configuration changes</migration_scripts>
-      </configuration_versioning>
-    </shared_configuration>
-    
-    <configuration_validation>
-      <description>Validate configuration at build time and runtime</description>
-      
-      <schema_validation>
-        <description>Use schemas to validate configuration structure and types</description>
-        <json_schema>Define JSON schemas for configuration validation</json_schema>
-        <runtime_validation>Validate configuration when slices start up</runtime_validation>
-        <example>
-          <![CDATA[
-# Configuration schema for CreatePost slice
-{
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "type": "object",
-  "properties": {
-    "database": {
-      "type": "object",
-      "properties": {
-        "pool_size": {"type": "integer", "minimum": 1, "maximum": 100},
-        "timeout": {"type": "string", "pattern": "^[0-9]+[smh]$"}
-      },
-      "required": ["pool_size", "timeout"]
-    },
-    "cache": {
-      "type": "object", 
-      "properties": {
-        "enabled": {"type": "boolean"},
-        "ttl": {"type": "integer", "minimum": 0}
-      },
-      "required": ["enabled"]
-    }
-  },
-  "required": ["database"]
-}
-          ]]>
-        </example>
-      </schema_validation>
-      
-      <consistency_validation>
-        <description>Validate configuration consistency across related slices</description>
-        <dependency_validation>Ensure slice dependencies have compatible configuration</dependency_validation>
-        <constraint_validation>Validate business constraints across slice configurations</constraint_validation>
-      </consistency_validation>
-    </configuration_validation>
-    
-    <configuration_monitoring>
-      <description>Monitor configuration changes and their impact</description>
-      <change_tracking>Track all configuration changes with timestamps and authors</change_tracking>
-      <impact_analysis>Monitor system behavior after configuration changes</impact_analysis>
-      <rollback_automation>Automatically rollback configuration changes that cause issues</rollback_automation>
-    </configuration_monitoring>
-  </configuration_management>
-  
-  <refactoring_indicators>
-    <principle>Refactoring decisions should be based on objective criteria and business impact, not arbitrary thresholds</principle>
-    
-    <decision_framework>
-      <step id="1">Identify the refactoring trigger (duplication, complexity, performance, etc.)</step>
-      <step id="2">Assess the business impact and development team pain points</step>
-      <step id="3">Evaluate the cost vs. benefit of refactoring vs. leaving as-is</step>
-      <step id="4">Consider the team's current skill level and capacity</step>
-      <step id="5">Choose the minimal intervention that addresses the core issue</step>
-    </decision_framework>
-    
-    <trigger type="duplication">
-      <threshold>
-        <guideline>Same logic duplicated across 3+ slices</guideline>
-        <rationale>Two instances may be coincidental; three indicates a pattern worth addressing</rationale>
-        <exceptions>
-          <exception>Simple validation logic (5-10 lines) - duplication acceptable</exception>
-          <exception>Slice-specific business rules that happen to look similar</exception>
-        </exceptions>
-      </threshold>
-      <validation_checklist>
-        <check>Is the duplicated logic truly identical or just similar?</check>
-        <check>Would extraction create coupling between otherwise independent slices?</check>
-        <check>Is the duplication causing actual maintenance problems?</check>
-        <check>Can the team easily maintain the extracted shared component?</check>
-      </validation_checklist>
-      <action>Extract shared utility or service</action>
-      <implementation_steps>
-        <step>Identify the exact duplicated logic boundaries</step>
-        <step>Create shared utility in infrastructure layer</step>
-        <step>Update slices to use shared utility via dependency injection</step>
-        <step>Add comprehensive tests for shared component</step>
-        <step>Monitor for unintended coupling issues</step>
-      </implementation_steps>
-    </trigger>
-    
-    <trigger type="handler_complexity">
-      <threshold>
-        <guideline>Handler exceeds 50 lines or 3 levels of nesting</guideline>
-        <rationale>Beyond this point, handlers become difficult to understand and test effectively</rationale>
-        <context_adjustments>
-          <adjustment>Simple CRUD handlers: 30-line threshold more appropriate</adjustment>
-          <adjustment>Complex business workflows: 75-line threshold acceptable with good structure</adjustment>
-        </context_adjustments>
-      </threshold>
-      <validation_checklist>
-        <check>Can the handler be understood without scrolling?</check>
-        <check>Are there clear, single-responsibility methods?</check>
-        <check>Is the error handling logic dominating the method size?</check>
-        <check>Would splitting actually improve readability?</check>
-      </validation_checklist>
-      <action>Break down into smaller components or extract domain services</action>
-      <implementation_steps>
-        <step>Identify cohesive groups of functionality within the handler</step>
-        <step>Extract private methods for complex operations</step>
-        <step>Consider extracting domain services for business logic</step>
-        <step>Maintain single responsibility per extracted component</step>
-        <step>Ensure error handling remains clear and consistent</step>
-      </implementation_steps>
-    </trigger>
-    
-    <trigger type="excessive_coupling">
-      <threshold>
-        <guideline>Slice requires more than 5 external dependencies</guideline>
-        <rationale>High dependency count often indicates unclear slice boundaries</rationale>
-        <exclusions>
-          <exclusion>Infrastructure dependencies (DB, logging, caching) - these are expected</exclusion>
-          <exclusion>Framework-provided dependencies (DI container, HTTP context)</exclusion>
-        </exclusions>
-      </threshold>
-      <validation_checklist>
-        <check>Are the dependencies truly necessary for this slice's business function?</check>
-        <check>Could the slice be split into multiple, more focused slices?</check>
-        <check>Are we violating the single responsibility principle?</check>
-        <check>Can some dependencies be provided through events instead?</check>
-      </validation_checklist>
-      <action>Evaluate if slice boundaries are correct</action>
-      <implementation_steps>
-        <step>Map each dependency to its business justification</step>
-        <step>Identify which dependencies could be event-driven</step>
-        <step>Consider splitting slice into smaller, focused slices</step>
-        <step>Review if cross-cutting concerns are properly abstracted</step>
-      </implementation_steps>
-    </trigger>
-    
-    <trigger type="maintenance_burden">
-      <threshold>
-        <guideline>Slice changes frequently due to similar requirements elsewhere</guideline>
-        <rationale>Frequent synchronized changes indicate missing abstraction</rationale>
-        <measurement>Track change frequency over 3-month periods</measurement>
-      </threshold>
-      <validation_checklist>
-        <check>Are changes truly similar or just coincidentally timed?</check>
-        <check>Would shared logic reduce or increase maintenance burden?</check>
-        <check>Is the team struggling with keeping changes synchronized?</check>
-        <check>Are business rules genuinely shared or domain-specific?</check>
-      </validation_checklist>
-      <action>Consider extracting common behavior</action>
-      <balance_guidance>Prefer slice independence over DRY principle - only extract when maintenance burden is demonstrably high</balance_guidance>
-    </trigger>
-    
-    <trigger type="performance_degradation">
-      <threshold>
-        <guideline>Slice consistently performs below SLA thresholds for 7+ days</guideline>
-        <rationale>Persistent performance issues indicate architectural problems, not temporary load spikes</rationale>
-        <measurement>Use P95 latency and error rate metrics</measurement>
-      </threshold>
-      <validation_checklist>
-        <check>Is performance degradation isolated to this slice?</check>
-        <check>Have we identified the specific bottleneck within the slice?</check>
-        <check>Would slice splitting actually improve performance?</check>
-        <check>Are there simpler optimizations (caching, query optimization) to try first?</check>
-      </validation_checklist>
-      <action>Optimize slice implementation or consider architectural changes</action>
-      <implementation_priority>
-        <priority level="1">Database query optimization and caching</priority>
-        <priority level="2">Algorithm optimization within slice</priority>
-        <priority level="3">Slice boundary reconsideration</priority>
-        <priority level="4">Infrastructure scaling</priority>
-      </implementation_priority>
-    </trigger>
-    
-    <trigger type="security_vulnerability">
-      <threshold>
-        <guideline>Security vulnerability discovered in slice implementation</guideline>
-        <rationale>Security issues require immediate attention regardless of other factors</rationale>
-        <urgency>Critical vulnerabilities require immediate action within 24 hours</urgency>
-      </threshold>
-      <validation_checklist>
-        <check>Does the vulnerability affect other slices with similar patterns?</check>
-        <check>Is this a slice-specific issue or architectural security gap?</check>
-        <check>Can the fix be applied without breaking slice boundaries?</check>
-        <check>Are there broader security review implications?</check>
-      </validation_checklist>
-      <action>Immediate security patch and security review of similar slices</action>
-      <implementation_steps>
-        <step>Apply immediate fix to affected slice</step>
-        <step>Scan other slices for similar vulnerability patterns</step>
-        <step>Review slice boundary security implications</step>
-        <step>Update security guidelines and templates</step>
-        <step>Conduct broader architectural security review if needed</step>
-      </implementation_steps>
-    </trigger>
-  </refactoring_indicators>
-  
   <framework_patterns>
     <dotnet>
       <tool primary="MediatR">Command/query dispatch and pipeline behaviors</tool>
@@ -2534,302 +165,298 @@ public class CreatePostHandler : IRequestHandler<CreatePostCommand, int>
 {
     public async Task<int> Handle(CreatePostCommand request, CancellationToken cancellationToken)
     {
-        // Implementation
+        // Slice implementation
     }
 }
         ]]>
       </example>
-      <pipeline>Use IPipelineBehavior for cross-cutting concerns</pipeline>
     </dotnet>
-    
-    <nodejs>
-      <tool primary="Express">Route handlers as slice entry points</tool>
-      <structure>Feature-based directory organization with handlers</structure>
-      <example>
-        <![CDATA[
-// features/createPost/createPostHandler.js
-class CreatePostHandler {
-    async handle(command) {
-        // Implementation
-    }
-}
 
-// features/createPost/createPostRoute.js
-router.post('/posts', async (req, res) => {
-    const result = await new CreatePostHandler().handle(req.body);
-    res.json(result);
-});
-        ]]>
-      </example>
-      <middleware>Use Express middleware for cross-cutting concerns</middleware>
-    </nodejs>
-    
     <python>
       <tool primary="FastAPI">Dependency injection and route organization</tool>
       <structure>Feature modules with handlers and dependencies</structure>
       <example>
         <![CDATA[
 # features/create_post/handler.py
-class CreatePostHandler:
+class PostHandler:
     def __init__(self, db_session: Session):
         self.db_session = db_session
-    
-    def handle(self, command: CreatePostCommand) -> int:
-        # Implementation
-        pass
 
 # features/create_post/router.py
 @router.post("/posts")
 async def create_post(
     command: CreatePostCommand,
-    handler: CreatePostHandler = Depends()
+    handler: PostHandler = Depends()
 ):
     return handler.handle(command)
         ]]>
       </example>
-      <dependency_injection>Use FastAPI's dependency system for slice composition</dependency_injection>
     </python>
-    
-    <java>
-      <tool primary="Spring">Controller-Service-Repository per slice</tool>
-      <structure>Package-by-feature organization</structure>
+
+    <typescript>
+      <tool primary="Express/Fastify">Route handlers as slice entry points</tool>
+      <structure>Feature-based directory organization</structure>
       <example>
         <![CDATA[
-// features.createpost.CreatePostController
-@RestController
-@RequestMapping("/posts")
-public class CreatePostController {
-    private final CreatePostService service;
-    
-    @PostMapping
-    public ResponseEntity<Integer> createPost(@RequestBody CreatePostCommand command) {
-        return ResponseEntity.ok(service.handle(command));
+// features/createPost/handler.ts
+export class PostHandler {
+    async handle(command: CreatePostCommand): Promise<number> {
+        // Slice implementation
     }
+}
+
+// features/createPost/route.ts
+router.post('/posts', async (req, res) => {
+    const result = await new PostHandler().handle(req.body);
+    res.json(result);
+});
+        ]]>
+      </example>
+    </typescript>
+  </framework_patterns>
+
+  <error_handling>
+    <principle>Each slice handles its own errors appropriately while maintaining boundary isolation</principle>
+    
+    <error_classification>
+      <business_errors>
+        <description>Business rule violations, validation failures</description>
+        <handling>Return 4xx status codes with meaningful messages</handling>
+        <example>Validation failures, authorization failures, business rule violations</example>
+      </business_errors>
+      <infrastructure_errors>
+        <description>Technical system failures</description>
+        <handling>Return 5xx status codes, log details, attempt recovery</handling>
+        <example>Database failures, external API timeouts, network issues</example>
+      </infrastructure_errors>
+    </error_classification>
+
+    <patterns>
+      <pattern name="Fail Fast Within Slice">
+        <description>Validate inputs early, fail immediately on invalid data</description>
+        <example>
+          <![CDATA[
+class CreatePostHandler:
+    def handle(self, command):
+        self._validate_command(command)  # Fail fast
+        try:
+            result = self._execute_business_logic(command)
+            return result
+        except ValidationError as e:
+            raise CreatePostValidationError(str(e)) from e
+        except DatabaseError as e:
+            raise CreatePostInfrastructureError("Unable to save post") from e
+          ]]>
+        </example>
+      </pattern>
+
+      <pattern name="Graceful Degradation">
+        <description>Handle external failures without breaking core functionality</description>
+        <example>Core operations succeed even if optional services fail</example>
+      </pattern>
+    </patterns>
+
+    <response_format>
+      <structure>
+        <![CDATA[
+{
+  "error": {
+    "code": "VALIDATION_FAILED",
+    "message": "Post title cannot be empty",
+    "slice": "create_post",
+    "correlation_id": "req-123-abc",
+    "timestamp": "2024-01-15T10:30:00Z"
+  }
+}
+        ]]>
+      </structure>
+    </response_format>
+  </error_handling>
+
+  <testing_strategies>
+    <unit_testing>
+      <slice_isolation>Test each slice independently from others</slice_isolation>
+      <mocking_strategy>Mock external dependencies, not other slices</mocking_strategy>
+      <coverage_target>80-90% coverage within slice boundaries</coverage_target>
+    </unit_testing>
+
+    <integration_testing>
+      <boundary_testing>Focus on slice boundaries and contracts</boundary_testing>
+      <end_to_end>Test complete user journeys spanning multiple slices</end_to_end>
+      <error_scenarios>Test error propagation across slice boundaries</error_scenarios>
+    </integration_testing>
+
+    <example>
+      <![CDATA[
+# Test slice in isolation
+class TestCreatePostHandler:
+    def test_successful_creation(self):
+        # Mock only external dependencies
+        mock_db = Mock()
+        mock_logger = Mock()
+        handler = CreatePostHandler(mock_db, mock_logger)
+        
+        result = handler.handle(CreatePostCommand("Title", "Content", user_id=1))
+        
+        assert result > 0
+        mock_db.add.assert_called_once()
+      ]]>
+    </example>
+  </testing_strategies>
+
+  <cross_cutting_concerns>
+    <logging>
+      <approach>Inject logging interface into handlers</approach>
+      <pattern>Use structured logging with slice context</pattern>
+      <example>
+        <![CDATA[
+class PostHandler:
+    def __init__(self, logger):
+        self.logger = logger
+    
+    def handle(self, command):
+        self.logger.info("Processing request", 
+                        {"slice": "posts", "user_id": command.user_id})
+        ]]>
+      </example>
+    </logging>
+
+    <authorization>
+      <approach>Use decorators/middleware at slice boundaries</approach>
+      <pattern>Authorize at command/query level, not within handlers</pattern>
+      <example>
+        <![CDATA[
+@authorize_user
+def create_post_endpoint(command):
+    return PostHandler().handle(command)
+        ]]>
+      </example>
+    </authorization>
+
+    <caching>
+      <approach>Slice-specific caching strategies</approach>
+      <pattern>Cache at slice output level</pattern>
+      <implementation>Use cache keys that include slice context</implementation>
+    </caching>
+  </cross_cutting_concerns>
+
+  <performance_optimization>
+    <caching_strategies>
+      <slice_level_caching>Cache at slice boundaries, not internally</slice_level_caching>
+      <cache_invalidation>Use domain events to invalidate related caches</cache_invalidation>
+      <example>
+        <![CDATA[
+class CachedSliceHandler:
+    def handle(self, command):
+        cache_key = f"slice:list_posts:{hash(command)}"
+        cached_result = self.cache.get(cache_key)
+        
+        if cached_result:
+            return cached_result
+        
+        result = self._execute_slice_logic(command)
+        self.cache.set(cache_key, result, ttl=300)
+        return result
+        ]]>
+      </example>
+    </caching_strategies>
+
+    <database_optimization>
+      <slice_specific_queries>Optimize queries for each slice's use case</slice_specific_queries>
+      <read_models>Create optimized read models for query-heavy slices</read_models>
+      <connection_pooling>Size pools based on slice characteristics</connection_pooling>
+    </database_optimization>
+
+    <scaling_patterns>
+      <horizontal_scaling>Scale slices independently based on load</horizontal_scaling>
+      <resource_optimization>Optimize resources based on slice characteristics</resource_optimization>
+      <load_balancing>Route requests to optimal slice instances</load_balancing>
+    </scaling_patterns>
+  </performance_optimization>
+
+  <migration_strategies>
+    <strangler_fig_pattern>
+      <description>Gradually replace legacy functionality with VSA slices</description>
+      <phases>
+        <phase id="1" name="Quick Wins">Extract simple, isolated features first</phase>
+        <phase id="2" name="Core Features">Extract main business capabilities</phase>
+        <phase id="3" name="Complex Integration">Extract tightly coupled components</phase>
+      </phases>
+      <rollback_safety>
+        <feature_toggles>Switch between legacy and new implementations</feature_toggles>
+        <data_sync>Keep data synchronized during transition</data_sync>
+      </rollback_safety>
+    </strangler_fig_pattern>
+
+    <validation>
+      <parallel_running>Run legacy and new systems in parallel</parallel_running>
+      <canary_deployments>Gradually increase traffic to new slices</canary_deployments>
+      <monitoring>Track metrics and automatically rollback if issues</monitoring>
+    </validation>
+  </migration_strategies>
+
+  <monitoring_observability>
+    <metrics>
+      <slice_level_metrics>Collect metrics at slice granularity</slice_level_metrics>
+      <business_metrics>Track feature-specific KPIs</business_metrics>
+      <technical_metrics>Monitor performance, errors, resource usage</technical_metrics>
+    </metrics>
+
+    <logging>
+      <structured_logging>Use structured logging with slice context</structured_logging>
+      <correlation_ids>Include correlation IDs across slice interactions</correlation_ids>
+      <example>
+        <![CDATA[
+{
+  "timestamp": "2023-12-01T10:30:00Z",
+  "level": "INFO",
+  "slice": "create_post",
+  "correlation_id": "req-123",
+  "user_id": "user-456",
+  "message": "Post created successfully"
 }
         ]]>
       </example>
-      <configuration>Use Spring profiles for slice-specific configurations</configuration>
-    </java>
-    
-    <typescript>
-      <tool primary="Vite">Zero-config build tool with fast dev server</tool>
-      <structure>Feature-based folder layout under <code>src/features</code></structure>
-      <setup>
-        <step>Initialize with <code>npm create vite@latest my-app -- --template react-ts</code></step>
-        <step>Install TailwindCSS via <code>npm install -D tailwindcss postcss autoprefixer</code> and <code>npx tailwindcss init -p</code></step>
-        <step>Configure <code>tailwind.config.js</code> with content paths: <code>["./src/**/*.{ts,tsx}"]</code></step>
-        <step>Use <code>tsconfig.json</code> with <code>{"strict": true, "baseUrl": "./src", "paths": {"@features/*": ["features/*"]}}</code></step>
-      </setup>
-      <code_sample feature="CreatePost">
-        <![CDATA[
-// src/features/createPost/CreatePost.tsx
-import React, { useState } from 'react';
+    </logging>
 
-interface CreatePostProps {
-  onSubmit: (title: string, content: string) => Promise<number>;
-}
+    <tracing>
+      <distributed_tracing>Trace across slice boundaries</distributed_tracing>
+      <span_naming>Use descriptive span names with slice context</span_naming>
+    </tracing>
+  </monitoring_observability>
 
-export const CreatePost: React.FC<CreatePostProps> = ({ onSubmit }) => {
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
+  <security_patterns>
+    <authentication>
+      <slice_entry_points>Apply authentication at slice entry, not within</slice_entry_points>
+      <jwt_patterns>Use feature-specific claims in JWT tokens</jwt_patterns>
+      <service_auth>Authenticate slice-to-slice communication</service_auth>
+    </authentication>
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const id = await onSubmit(title, content);
-    console.log(`Post created with ID ${id}`);
-  };
+    <authorization>
+      <feature_based_permissions>Design permissions around business features</feature_based_permissions>
+      <rbac>Apply role-based access control at slice level</rbac>
+    </authorization>
 
-  return (
-    <form onSubmit={handleSubmit} className="space-y-4 p-4 bg-white rounded-lg shadow">
-      <input
-        type="text"
-        value={title}
-        onChange={e => setTitle(e.target.value)}
-        placeholder="Title"
-        className="w-full p-2 border rounded"
-        required
-      />
-      <textarea
-        value={content}
-        onChange={e => setContent(e.target.value)}
-        placeholder="Content"
-        className="w-full p-2 border rounded"
-        required
-      />
-      <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-        Create Post
-      </button>
-    </form>
-  );
-};
-        ]]>
-      </code_sample>
-      <routing>
-        <approach>Use React Router v6 with slice-specific routes</approach>
-        <example>
-          <![CDATA[
-// src/App.tsx
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { CreatePost } from './features/createPost/CreatePost';
+    <data_protection>
+      <encryption_at_rest>Encrypt sensitive data within slices</encryption_at_rest>
+      <encryption_in_transit>Use TLS 1.3+ for inter-slice communication</encryption_in_transit>
+      <pii_handling>Handle PII according to regulations per slice</pii_handling>
+    </data_protection>
+  </security_patterns>
 
-function App() {
-  return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/posts/new" element={<CreatePost onSubmit={submitPost} />} />
-      </Routes>
-    </BrowserRouter>
-  );
-}
-          ]]>
-        </example>
-      </routing>
-      <styling>
-        <approach>Each slice imports its own Tailwind partials</approach>
-        <pattern>Maintain a <code>src/features/&lt;Feature&gt;/styles.css</code> per slice</pattern>
-      </styling>
-      <dependency_injection>
-        <approach>Use React Context or custom hooks for slice-scoped services</approach>
-        <example>
-          <![CDATA[
-// src/features/api/usePostService.ts
-import { useCallback } from 'react';
-import type { CreatePostDto } from '../createPost/types';
+  <implementation_example>
+    <structure>
+      <folder path="features/create_post">
+        <file>command.py</file>
+        <file>handler.py</file>
+        <file>router.py</file>
+        <file>tests.py</file>
+      </folder>
+    </structure>
 
-export function usePostService() {
-  const create = useCallback(async (dto: CreatePostDto) => {
-    const res = await fetch('/api/posts', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(dto),
-    });
-    return res.json();
-  }, []);
-  return { create };
-}
-          ]]>
-        </example>
-      </dependency_injection>
-    </typescript>
-  </framework_patterns>
-  
-  <performance_guidelines>
-    <database>
-      <principle>Each slice may have optimized queries for its specific use case</principle>
-      <approach>Allow slice-specific query optimization over generic solutions</approach>
-      <example>ListPosts slice uses read-optimized query while CreatePost uses write-optimized approach</example>
-    </database>
-    <caching>
-      <principle>Slice-specific caching strategies over shared cache</principle>
-      <approach>Cache at slice boundaries with feature-specific keys</approach>
-      <example>Cache ListPosts results separately from GetPost results</example>
-    </caching>
-    <monitoring>
-      <principle>Feature-level metrics and observability</principle>
-      <approach>Track performance per slice rather than per technical layer</approach>
-      <metrics>Response time, error rates, and throughput per feature</metrics>
-    </monitoring>
-    <scaling>
-      <principle>Scale slices independently based on usage patterns</principle>
-      <approach>Identify high-traffic slices and optimize specifically</approach>
-      <example>Scale read-heavy slices differently from write-heavy slices</example>
-    </scaling>
-  </performance_guidelines>
-  
-  <suitability>
-    <application_type id="WebApplications" fit="high">
-      <rationale>Clear separation of distinct features or use cases</rationale>
-    </application_type>
-    <application_type id="Microservices" fit="high">
-      <rationale>Aligns with bounded context principles</rationale>
-    </application_type>
-    <application_type id="AgileEnvironments" fit="high">
-      <rationale>Facilitates incremental feature delivery</rationale>
-      <detail>Enhances sprint planning and delivery by organizing around features</detail>
-    </application_type>
-    <application_type id="EventDrivenSystems" fit="high">
-      <rationale>Natural fit for command/query patterns and event sourcing</rationale>
-      <detail>Each slice can publish domain events independently</detail>
-    </application_type>
-    <application_type id="ModernFullStackApplications" fit="high">
-      <rationale>Excellent alignment with TypeScript/React patterns and API design</rationale>
-      <detail>Frontend and backend slices can be developed independently with clear contracts</detail>
-    </application_type>
-    <application_type id="HighlyInterconnectedSystems" fit="low">
-      <rationale>Managing shared components becomes cumbersome</rationale>
-      <detail>Systems with predominant shared logic may face integration challenges</detail>
-    </application_type>
-    <application_type id="ReportingSystems" fit="medium">
-      <rationale>Read-heavy systems benefit from query-specific optimizations</rationale>
-      <detail>Each report can be optimized independently, but shared data models are common</detail>
-    </application_type>
-  </suitability>
-  
-  <related_patterns>
-    <pattern id="CQRS" relationship="complementary">
-      <description>Command Query Responsibility Segregation</description>
-      <integration>
-        <approach>Handle commands and queries as separate slices</approach>
-        <example>Create order command and list orders query as distinct slices</example>
-      </integration>
-      <implementation_note>
-        <framework>Naturally aligns with frameworks like MediatR for .NET or Axon for Java</framework>
-        <pattern>Each slice corresponds to a specific command or query handler</pattern>
-      </implementation_note>
-    </pattern>
-    <pattern id="CleanArchitecture" relationship="hybrid">
-      <description>Separation of concerns into concentric layers</description>
-      <integration>
-        <approach>Apply Clean Architecture principles within each slice</approach>
-        <example>Isolate domain logic from infrastructure within a slice</example>
-      </integration>
-      <distinction>
-        <clean>Emphasizes concentric layers with strict dependency rules</clean>
-        <vsa>Groups concerns by feature rather than by layer</vsa>
-      </distinction>
-    </pattern>
-    <pattern id="FeatureDrivenDevelopment" relationship="complementary">
-      <description>Agile methodology focusing on feature delivery</description>
-      <integration>
-        <approach>Structure codebase to mirror feature-based development</approach>
-        <example>Each sprint feature corresponds to a vertical slice</example>
-      </integration>
-      <alignment>
-        <methodology>Organizes development around feature lists and design-by-feature</methodology>
-        <architecture>Structures codebase to mirror feature-based approach</architecture>
-      </alignment>
-    </pattern>
-    <pattern id="EventSourcing" relationship="complementary">
-      <description>Store state changes as a sequence of events</description>
-      <integration>
-        <approach>Each slice can produce and consume events independently</approach>
-        <example>CreatePost slice emits PostCreated event, consumed by NotificationSlice</example>
-      </integration>
-    </pattern>
-  </related_patterns>
-  
-  <implementation>
-    <example language="python">
-      <structure>
-        <folder path="features/create_post">
-          <file>create_post_command.py</file>
-          <file>create_post_handler.py</file>
-          <file>create_post_validator.py</file>
-          <file>create_post_router.py</file>
-        </folder>
-        <folder path="features/list_posts">
-          <file>list_posts_query.py</file>
-          <file>list_posts_handler.py</file>
-          <file>list_posts_router.py</file>
-        </folder>
-        <folder path="features/add_comment">
-          <file>add_comment_command.py</file>
-          <file>add_comment_handler.py</file>
-          <file>add_comment_router.py</file>
-        </folder>
-      </structure>
-      <code_sample feature="CreatePost">
-        <![CDATA[
+    <code_sample>
+      <![CDATA[
+# features/create_post/handler.py
 class CreatePostHandler:
     def __init__(self, db_session, logger, event_publisher):
         self.db_session = db_session
@@ -2838,484 +465,46 @@ class CreatePostHandler:
         
     def handle(self, command):
         try:
-            self.validate(command)
-            post = Post(title=command.title, content=command.content, author_id=command.author_id)
+            self._validate(command)
+            post = Post(title=command.title, content=command.content)
             self.db_session.add(post)
             self.db_session.commit()
             
-            # Publish domain event
-            self.event_publisher.publish(PostCreatedEvent(post.id, post.title, post.author_id))
-            
-            self.logger.info(f"Post created successfully: {post.id}")
+            self.event_publisher.publish(PostCreatedEvent(post.id))
+            self.logger.info(f"Post created: {post.id}")
             return post.id
+            
         except ValidationError as e:
-            self.logger.warning(f"Post creation validation failed: {e}")
+            self.logger.warning(f"Validation failed: {e}")
             raise
         except Exception as e:
-            self.logger.error(f"Post creation failed: {e}")
+            self.logger.error(f"Creation failed: {e}")
             self.db_session.rollback()
             raise
-        ]]>
-      </code_sample>
-      <testing_approach>
-        <strategy>Each slice can be unit-tested independently</strategy>
-        <example>Testing CreatePostCommandHandler involves mocking only the database context, logger, and event publisher</example>
-        <benefit>Simplifies testing by reducing dependencies and mocking requirements</benefit>
-        <integration_testing>Test slice boundaries and cross-slice communication through integration tests</integration_testing>
-      </testing_approach>
-    </example>
-    
-    <shared_components>
-      <principle>Share components only when the benefit clearly outweighs the coupling cost</principle>
-      <decision_framework>
-        <question>Is this component purely technical infrastructure with no business logic?</question>
-        <answer condition="yes">Safe to share - place in infrastructure layer</answer>
-        <answer condition="no">Continue evaluation</answer>
-        
-        <question>Is the same logic duplicated across 3+ slices and causing maintenance burden?</question>
-        <answer condition="yes">Consider extracting - evaluate coupling cost</answer>
-        <answer condition="no">Keep duplicated - slice independence preferred</answer>
-        
-        <question>Would extracting this component require slices to coordinate changes?</question>
-        <answer condition="yes">Do not extract - violates slice independence</answer>
-        <answer condition="no">Safe to extract if other criteria met</answer>
-      </decision_framework>
-      
-      <component type="domain_model">
-        <description>Core entities shared across multiple slices</description>
-        <when_to_share>
-          <criteria>Entity represents fundamental business concept</criteria>
-          <criteria>Entity structure is stable and unlikely to change frequently</criteria>
-          <criteria>Multiple slices need identical representation of the entity</criteria>
-        </when_to_share>
-        <when_not_to_share>
-          <criteria>Different slices need different views of the entity</criteria>
-          <criteria>Entity changes frequently due to evolving business requirements</criteria>
-          <criteria>Slices only share a few fields of a larger entity</criteria>
-        </when_not_to_share>
-        <implementation_pattern>
-          <![CDATA[
-# shared/domain/entities/post.py
-from dataclasses import dataclass
-from datetime import datetime
-from typing import Optional
+      ]]>
+    </code_sample>
+  </implementation_example>
 
-@dataclass(frozen=True)  # Immutable to prevent accidental modification
-class Post:
-    """Core Post entity shared across slices.
-    
-    This represents the stable, essential attributes of a Post.
-    Slices can extend this with their own specific data structures.
-    """
-    id: int
-    title: str
-    content: str
-    author_id: int
-    created_at: datetime
-    status: str  # draft, published, archived
-    
-    def is_published(self) -> bool:
-        return self.status == 'published'
-
-# features/create_post/models.py
-from shared.domain.entities.post import Post
-
-class CreatePostData:
-    """Slice-specific data structure for post creation"""
-    def __init__(self, title: str, content: str, author_id: int):
-        self.title = title
-        self.content = content
-        self.author_id = author_id
-        
-    def to_post(self) -> Post:
-        return Post(
-            id=0,  # Will be set by database
-            title=self.title,
-            content=self.content,
-            author_id=self.author_id,
-            created_at=datetime.utcnow(),
-            status='draft'
-        )
-          ]]>
-        </implementation_pattern>
-        <location>shared/domain/entities/ - clearly separated from slice logic</location>
-      </component>
-      
-      <component type="utilities">
-        <description>Common functionality extracted when duplication becomes problematic</description>
-        <extraction_criteria>
-          <criterion priority="high">Same logic appears in 3+ slices</criterion>
-          <criterion priority="high">Logic is causing actual maintenance problems</criterion>
-          <criterion priority="medium">Utility has no business logic dependencies</criterion>
-          <criterion priority="medium">Team has capacity to maintain shared component</criterion>
-        </extraction_criteria>
-        <examples>
-          <safe_to_extract>
-            <example>Input sanitization functions</example>
-            <example>Date/time formatting utilities</example>
-            <example>Encryption/decryption helpers</example>
-          </safe_to_extract>
-          <avoid_extracting>
-            <example>Business validation rules (even if similar)</example>
-            <example>Slice-specific error messages</example>
-            <example>Domain-specific calculations</example>
-          </avoid_extracting>
-        </examples>
-        <implementation_pattern>
-          <![CDATA[
-# infrastructure/utilities/text_utils.py
-import re
-from typing import str
-
-class TextSanitizer:
-    """Pure utility with no business logic dependencies"""
-    
-    @staticmethod
-    def sanitize_html(text: str) -> str:
-        """Remove HTML tags and encode special characters"""
-        # Remove HTML tags
-        clean = re.sub('<.*?>', '', text)
-        # Encode special characters
-        return html.escape(clean)
-    
-    @staticmethod
-    def truncate_text(text: str, max_length: int, suffix: str = "...") -> str:
-        """Truncate text to specified length"""
-        if len(text) <= max_length:
-            return text
-        return text[:max_length - len(suffix)] + suffix
-
-# features/create_post/handler.py
-from infrastructure.utilities.text_utils import TextSanitizer
-
-class CreatePostHandler:
-    def handle(self, command: CreatePostCommand):
-        # Use shared utility for technical functionality
-        clean_title = TextSanitizer.sanitize_html(command.title)
-        clean_content = TextSanitizer.sanitize_html(command.content)
-        
-        # Slice-specific business logic remains here
-        self._validate_post_rules(clean_title, clean_content)
-        # ...
-          ]]>
-        </implementation_pattern>
-        <location>infrastructure/utilities/ - clearly technical, no business logic</location>
-      </component>
-      
-      <component type="infrastructure">
-        <description>Technical services like database connections, external APIs</description>
-        <safe_to_share>Always safe to share pure infrastructure components</safe_to_share>
-        <examples>
-          <example>Database connection pools and session factories</example>
-          <example>HTTP clients and request/response handling</example>
-          <example>Message queue producers and consumers</example>
-          <example>Caching interfaces and implementations</example>
-          <example>Logging and monitoring infrastructure</example>
-        </examples>
-        <implementation_pattern>
-          <![CDATA[
-# infrastructure/database/session.py
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, Session
-from typing import Generator
-
-class DatabaseSessionFactory:
-    """Infrastructure component - safe to share across slices"""
-    
-    def __init__(self, database_url: str):
-        self.engine = create_engine(database_url)
-        self.SessionLocal = sessionmaker(bind=self.engine)
-    
-    def get_session(self) -> Generator[Session, None, None]:
-        """Provide database session to slices"""
-        session = self.SessionLocal()
-        try:
-            yield session
-            session.commit()
-        except Exception:
-            session.rollback()
-            raise
-        finally:
-            session.close()
-
-# features/create_post/handler.py
-class CreatePostHandler:
-    def __init__(self, db_session_factory: DatabaseSessionFactory):
-        self.db_session_factory = db_session_factory
-    
-    def handle(self, command: CreatePostCommand):
-        with self.db_session_factory.get_session() as session:
-            # Slice-specific database operations
-            post = Post(...)
-            session.add(post)
-            # Session automatically committed by context manager
-          ]]>
-        </implementation_pattern>
-        <dependency_injection>Always inject infrastructure dependencies - never import directly</dependency_injection>
-        <location>infrastructure/ - clearly separated from business logic</location>
-      </component>
-      
-      <anti_patterns>
-        <anti_pattern name="Shared Business Logic">
-          <problem>Extracting business logic that happens to look similar across slices</problem>
-          <why_problematic>Creates coupling and prevents slices from evolving independently</why_problematic>
-          <example>Sharing validation rules between UserRegistration and UserProfileUpdate slices</example>
-          <solution>Keep business logic within slices, even if it appears duplicated</solution>
-        </anti_pattern>
-        
-        <anti_pattern name="Premature Extraction">
-          <problem>Extracting shared components before duplication is actually problematic</problem>
-          <why_problematic>Creates unnecessary coupling and complexity</why_problematic>
-          <example>Extracting utility after seeing duplicate code in only 2 slices</example>
-          <solution>Wait until duplication clearly causes maintenance burden</solution>
-        </anti_pattern>
-        
-        <anti_pattern name="Shared DTOs">
-          <problem>Using same data transfer objects across multiple slices</problem>
-          <why_problematic>Prevents slices from optimizing their interfaces independently</why_problematic>
-          <example>Using same API request/response objects for Create and Update operations</example>
-          <solution>Each slice should define its own DTOs optimized for its use case</solution>
-        </anti_pattern>
-      </anti_patterns>
-    </shared_components>
-  </implementation>
-  
-  <evolution_path>
-    <stage id="initial" maturity="low">
-      <description>Simple transaction scripts in each slice</description>
-      <characteristic>Direct, procedural handlers with minimal abstraction</characteristic>
-      <example>Basic CRUD operations with inline validation and data access</example>
-    </stage>
-    <stage id="intermediate" maturity="medium">
-      <description>Refactored slices with domain patterns where needed</description>
-      <characteristic>Domain services emerge for complex slices while simple ones remain as transaction scripts</characteristic>
-      <example>Complex workflows use domain services, simple operations remain as transaction scripts</example>
-    </stage>
-    <stage id="advanced" maturity="high">
-      <description>Rich domain model with patterns applied contextually</description>
-      <characteristic>Full DDD tactical patterns for complex domains, simpler patterns elsewhere</characteristic>
-      <example>Aggregates and domain events for complex features, simple handlers for CRUD</example>
-    </stage>
-    <guideline>Allow natural evolution based on complexity, resist premature abstraction</guideline>
-    <decision_criteria>
-      <complexity>Business logic complexity drives architectural sophistication</complexity>
-      <change_frequency>Frequently changing slices benefit from richer domain models</change_frequency>
-      <team_skills>Team capability influences appropriate abstraction level</team_skills>
-    </decision_criteria>
-  </evolution_path>
-  
-  <slice_validation_framework>
-    <principle>Systematic validation ensures slice boundaries maintain independence and business alignment</principle>
-    
-    <design_validation>
-      <checklist name="Slice Independence">
-        <check priority="critical">Can this slice be understood without reading other slice implementations?</check>
-        <check priority="critical">Can this slice be deployed independently without breaking other slices?</check>
-        <check priority="critical">Does this slice have a clear, single business responsibility?</check>
-        <check priority="high">Are slice dependencies limited to infrastructure and explicitly declared?</check>
-        <check priority="high">Does the slice communicate with others only through well-defined boundaries (APIs, events)?</check>
-        <check priority="medium">Can this slice be tested in complete isolation?</check>
-        <check priority="medium">Is the slice naming clearly indicative of its business capability?</check>
-      </checklist>
-      
-      <checklist name="Business Alignment">
-        <check priority="critical">Does this slice map to a specific user story or business capability?</check>
-        <check priority="critical">Would a business stakeholder understand what this slice accomplishes?</check>
-        <check priority="high">Are slice boundaries aligned with how users think about the feature?</check>
-        <check priority="high">Does the slice handle a complete user workflow or a coherent part of one?</check>
-        <check priority="medium">Can the business rules within this slice change independently of other slices?</check>
-      </checklist>
-      
-      <checklist name="Technical Quality">
-        <check priority="critical">Is error handling consistent and appropriate for the slice's responsibility?</check>
-        <check priority="critical">Are security concerns (authorization, validation) properly addressed?</check>
-        <check priority="high">Is the slice handler focused and not exceeding complexity thresholds?</check>
-        <check priority="high">Are database operations optimized for this slice's specific access patterns?</check>
-        <check priority="medium">Is logging structured and includes appropriate slice context?</check>
-        <check priority="medium">Are performance requirements met with appropriate caching strategy?</check>
-      </checklist>
-    </design_validation>
-    
-    <implementation_validation>
-      <code_review_checklist>
-        <category name="Slice Boundaries">
-          <check>No direct imports or references to other slice implementations</check>
-          <check>Communication with other slices happens only through designated interfaces</check>
-          <check>Shared dependencies are injected, not directly instantiated</check>
-          <check>Event publishing/consuming uses well-defined contracts</check>
-        </category>
-        
-        <category name="Error Handling">
-          <check>All expected business exceptions are properly caught and handled</check>
-          <check>Infrastructure failures are wrapped in appropriate slice-specific exceptions</check>
-          <check>Error messages are meaningful and actionable</check>
-          <check>Error scenarios are covered by tests</check>
-        </category>
-        
-        <category name="Testing">
-          <check>Unit tests mock only external dependencies, not other slices</check>
-          <check>Integration tests verify slice behavior through public interface</check>
-          <check>Test scenarios cover both happy path and error conditions</check>
-          <check>Tests can run in isolation without external system dependencies</check>
-        </category>
-      </code_review_checklist>
-      
-      <performance_validation>
-        <metric name="Response Time">
-          <target>P95 latency under slice-specific SLA (typically 200ms for simple operations)</target>
-          <measurement>Measure at slice boundary, not internal components</measurement>
-        </metric>
-        <metric name="Resource Usage">
-          <target>Memory usage stable under expected load</target>
-          <target>CPU usage proportional to business complexity</target>
-        </metric>
-        <metric name="Error Rate">
-          <target>Business errors under 5% (validation, authorization failures)</target>
-          <target>Technical errors under 0.1% (infrastructure failures)</target>
-        </metric>
-      </performance_validation>
-    </implementation_validation>
-    
-    <deployment_validation>
-      <readiness_checklist>
-        <check>Health check endpoint returns meaningful status</check>
-        <check>Configuration is properly externalized and validated</check>
-        <check>Monitoring and alerting are configured for slice-specific metrics</check>
-        <check>Database migrations (if any) are backward compatible</check>
-        <check>API documentation is updated and accurate</check>
-        <check>Rollback procedure is tested and documented</check>
-      </readiness_checklist>
-      
-      <canary_validation>
-        <criteria>No increase in error rates during canary period</criteria>
-        <criteria>Response times within acceptable variance</criteria>
-        <criteria>No reports of functional regression</criteria>
-        <criteria>Dependencies report normal health</criteria>
-      </canary_validation>
-    </deployment_validation>
-  </slice_validation_framework>
-  
-  <ai_coding_guidance>
-    <preference>Favor explicit slice boundaries over implicit coupling</preference>
-    <validation>Use the slice_validation_framework above for systematic verification</validation>
-    <refactoring>Suggest extraction only when clear duplication patterns emerge (see refactoring_indicators)</refactoring>
-    <testing>Prioritize slice-level testing over integration testing</testing>
-    <dependencies>Minimize cross-slice dependencies, prefer event-driven communication</dependencies>
-    <naming>Use feature-based naming conventions that reflect business capabilities</naming>
-    <documentation>Document slice responsibilities and boundaries clearly</documentation>
-    <evolution>Recommend simpler patterns initially, evolve complexity as needed</evolution>
-    <modern_patterns>Leverage modern frontend patterns with proper separation of concerns</modern_patterns>
-    <full_stack_alignment>Ensure frontend and backend slices maintain consistent boundaries</full_stack_alignment>
-    <security_first>Always consider security implications when designing slice boundaries</security_first>
-    <resilience_design>Build resilience patterns into slice communication from the start (see resilience_patterns)</resilience_design>
-    <testing_alignment>Ensure testing strategy aligns with slice independence claims (see testing_strategies)</testing_alignment>
-    <api_consistency>Design APIs that reinforce rather than violate slice boundaries (see api_design_patterns)</api_consistency>
-    <observability_integration>Include monitoring and logging requirements in slice design (see monitoring_observability)</observability_integration>
-  </ai_coding_guidance>
-  
-  <training_resources>
-    <skill id="Refactoring" priority="high">
-      <resource type="book">Refactoring: Improving the Design of Existing Code by Martin Fowler</resource>
-      <resource type="practice">Code kata exercises focusing on extract method and extract class</resource>
-      <resource type="workshop">Team refactoring sessions on existing codebase</resource>
-    </skill>
-    <skill id="DomainModeling" priority="medium">
-      <resource type="book">Domain-Driven Design by Eric Evans</resource>
-      <resource type="practice">Event storming workshops for feature identification</resource>
-      <resource type="workshop">Domain modeling exercises with business stakeholders</resource>
-    </skill>
-    <skill id="CodeSmells" priority="high">
-      <resource type="reference">Code smell identification checklists</resource>
-      <resource type="practice">Regular code review sessions focusing on smell detection</resource>
-      <resource type="tool">Static analysis tools configured for architecture violations</resource>
-    </skill>
-    <skill id="ModernFrontendPatterns" priority="medium">
-      <resource type="documentation">React TypeScript patterns and best practices</resource>
-      <resource type="practice">Building feature-based React applications</resource>
-      <resource type="tool">Vite and modern build tool configurations</resource>
-    </skill>
-    <skill id="SecurityEngineering" priority="high">
-      <resource type="book">Building Secure and Reliable Systems by O'Reilly</resource>
-      <resource type="practice">Security code review exercises focusing on input validation and authorization</resource>
-      <resource type="certification">OWASP security training and certification</resource>
-      <resource type="tool">Static application security testing (SAST) tools</resource>
-    </skill>
-    <skill id="TestingStrategies" priority="high">
-      <resource type="book">Growing Object-Oriented Software, Guided by Tests by Freeman & Pryce</resource>
-      <resource type="practice">Test-driven development with slice-focused test organization</resource>
-      <resource type="tool">TestContainers for integration testing</resource>
-      <resource type="workshop">BDD workshops using Gherkin and feature-focused scenarios</resource>
-    </skill>
-    <skill id="SystemResilience" priority="medium">
-      <resource type="book">Release It! by Michael Nygard</resource>
-      <resource type="practice">Chaos engineering exercises with slice-level failure injection</resource>
-      <resource type="tool">Circuit breaker libraries and monitoring tools</resource>
-      <resource type="workshop">Incident response and post-mortem analysis training</resource>
-    </skill>
-    <skill id="APIDesign" priority="medium">
-      <resource type="book">API Design Patterns by JJ Geewax</resource>
-      <resource type="practice">OpenAPI specification writing for slice APIs</resource>
-      <resource type="tool">API testing tools like Postman or Insomnia</resource>
-      <resource type="workshop">RESTful API design principles and GraphQL federation</resource>
-    </skill>
-    <skill id="ObservabilityPractices" priority="medium">
-      <resource type="book">Observability Engineering by Honeycomb authors</resource>
-      <resource type="practice">Implementing structured logging and distributed tracing</resource>
-      <resource type="tool">APM tools like New Relic, DataDog, or open-source alternatives</resource>
-      <resource type="workshop">Metrics design and alerting strategy workshops</resource>
-    </skill>
-  </training_resources>
-  
   <anti_patterns>
-    <anti_pattern id="SharedEverything">
-      <description>Creating shared services used across multiple slices</description>
-      <problem>Introduces coupling and reduces slice independence</problem>
-      <solution>Duplicate simple logic, extract only when complexity justifies it</solution>
-    </anti_pattern>
-    <anti_pattern id="LayerLeakage">
-      <description>Allowing infrastructure concerns to leak into slice handlers</description>
-      <problem>Reduces testability and increases coupling</problem>
-      <solution>Use dependency injection and abstractions at slice boundaries</solution>
-    </anti_pattern>
-    <anti_pattern id="SliceExplosion">
-      <description>Creating too many small slices for trivial operations</description>
-      <problem>Increases complexity without providing benefits</problem>
-      <solution>Group related operations into single slices when appropriate</solution>
-    </anti_pattern>
-    <anti_pattern id="SliceMonolith">
-      <description>Creating overly large slices that handle multiple concerns</description>
-      <problem>Reduces cohesion and increases maintenance burden</problem>
-      <solution>Split large slices based on business capabilities</solution>
-    </anti_pattern>
-    <anti_pattern id="FrontendBackendMismatch">
-      <description>Frontend and backend slices not aligned with feature boundaries</description>
-      <problem>Creates confusion and increases coordination overhead</problem>
-      <solution>Ensure consistent slice boundaries across full-stack features</solution>
-    </anti_pattern>
-    <anti_pattern id="SecurityAfterThought">
-      <description>Adding security as an afterthought rather than designing it into slice boundaries</description>
-      <problem>Creates security gaps and inconsistent protection across features</problem>
-      <solution>Include security requirements in initial slice design and boundary definition</solution>
-    </anti_pattern>
-    <anti_pattern id="TestingLayerViolation">
-      <description>Writing tests that span multiple slices or mock other slices</description>
-      <problem>Creates brittle tests that violate slice independence principles</problem>
-      <solution>Test slices in isolation and use integration tests only for boundary contracts</solution>
-    </anti_pattern>
-    <anti_pattern id="APIInconsistency">
-      <description>Designing APIs that don't respect slice boundaries or use inconsistent patterns</description>
-      <problem>Confuses API consumers and makes slice boundaries unclear</problem>
-      <solution>Design APIs that make slice boundaries explicit and follow consistent patterns</solution>
-    </anti_pattern>
-    <anti_pattern id="SilentFailures">
-      <description>Not implementing proper error handling and resilience patterns at slice boundaries</description>
-      <problem>Creates cascading failures and poor user experience</problem>
-      <solution>Implement circuit breakers, timeouts, and proper error propagation</solution>
-    </anti_pattern>
-    <anti_pattern id="ObservabilityGaps">
-      <description>Not implementing proper monitoring and logging at slice level</description>
-      <problem>Makes it difficult to debug issues and understand system behavior</problem>
-      <solution>Implement comprehensive slice-level monitoring, logging, and tracing</solution>
-    </anti_pattern>
+    <avoid>
+      <item>Sharing business logic between slices to reduce duplication</item>
+      <item>Creating generic abstractions that force coordination</item>
+      <item>Direct slice-to-slice method calls</item>
+      <item>Premature optimization without demonstrated need</item>
+      <item>Complex inheritance hierarchies across slices</item>
+    </avoid>
   </anti_patterns>
+
+  <suitability>
+    <high_fit>
+      <application>Web applications with distinct features</application>
+      <application>Microservices with clear bounded contexts</application>
+      <application>Agile environments with incremental delivery</application>
+      <application>Event-driven systems</application>
+    </high_fit>
+    <low_fit>
+      <application>Highly interconnected systems with predominant shared logic</application>
+      <application>Simple CRUD applications with minimal business logic</application>
+    </low_fit>
+  </suitability>
 </vertical_slice_guidelines>
