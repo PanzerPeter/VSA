@@ -12,7 +12,6 @@ The XML file includes:
 - Documented benefits and drawbacks
 - Guidelines for cross-cutting concerns
 - Refactoring triggers and best practices
-- Framework-specific recommendations (e.g., .NET, Node.js, Python, Java)
 - Suitability matrix by application type
 - Integration with related architectural patterns
 
@@ -34,14 +33,6 @@ The XML file includes:
 - Onboarding for teams transitioning to vertical slicing
 - Template for architecture governance and standardization
 
-## 🧩 Supported Frameworks
-
-The XML document includes example patterns for:
-- **.NET (MediatR, feature folders)**
-- **Node.js (Express)**
-- **Python (FastAPI)**
-- **Java (Spring)**
-
 ## 📎 License
 
 This documentation is provided under the [MIT License](LICENSE) (if applicable). Free to use, modify, and distribute with attribution.
@@ -52,7 +43,7 @@ Contributions are welcome! If you'd like to extend the schema, add examples, or 
 
 ## 📬 Contact
 
-For questions or feedback, feel free to create a GitHub Issue or reach out via email (if public contact info is provided).
+For questions or feedback, feel free to create a GitHub Issue
 
 ---
 
