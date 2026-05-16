@@ -1,0 +1,452 @@
+<vertical_slice_guidelines_rust version="3.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<metadata>
+<name>Vertical Slice Architecture - Rust AI Guidelines</name>
+<created>2025-03-28</created>
+<updated>2025-11-20</updated>
+<scope>Rust Architecture Pattern for AI Implementation</scope>
+<description>VSA guidelines optimized for Rust development, emphasizing ownership semantics, type safety, module boundaries, idiomatic concurrency, and performance-conscious design.</description>
+<priority>High</priority>
+<instruction>MUST follow all guidelines with clear AI decision points and default choices</instruction>
+<changelog>
+<entry date="2025-11-20">Enhanced module visibility, async bounds, error patterns, DI decisions, workspace structure, examples, slice communication, and cross-cutting concerns for completeness and idiomaticity. Refined DI decision tree for accuracy; improved consistency in terminology, grammar, and structure; fixed minor code example issues; added clarity to thresholds and principles.</entry>
+</changelog>
+</metadata>
+<activation_triggers>
+<trigger priority="high">User mentions "vertical slice", "VSA", or "feature-based architecture"</trigger>
+<trigger priority="high">Project structure shows feature-based modules (src/features/, src/slices/)</trigger>
+<trigger priority="high">User asks about organizing code by business capabilities in Rust</trigger>
+<trigger priority="medium">User mentions CQRS or command/query patterns (e.g., separating command structs)</trigger>
+<trigger priority="medium">User discusses crate decomposition or workspace splitting strategies</trigger>
+<trigger priority="low">Code shows handlers/structs with excessive trait bounds or Arc inclusions</trigger>
+<trigger priority="low">User mentions compilation time bottlenecks due to deep dependency trees</trigger>
+</activation_triggers>
+<ai_constraints>
+<never>Suggest VSA for simple CRUD applications without clear business features</never>
+<never>Apply VSA to single-entity operations without business complexity</never>
+<never>Recommend complex trait abstractions for slice communication when simple function calls suffice</never>
+<always>Ask about business context before recommending slice boundaries</always>
+<always>Validate that distinct business capabilities exist</always>
+<default_to>Simpler module organization unless complexity is clearly evident</default_to>
+<confidence_threshold>Require 80% confidence with 3+ distinct business features</confidence_threshold>
+</ai_constraints>
+<pattern_detection>
+<code_smells_that_suggest_vsa>
+<smell weight="high">Structs/Handlers with >6 fields representing different domains</smell>
+<smell weight="high">Service traits depending on 3+ other service traits</smell>
+<smell weight="medium">Giant mod.rs files containing unrelated logic</smell>
+<smell weight="medium">Circular dependencies between "service" and "repository" modules</smell>
+<smell weight="low">Generic traits with complex associated types used across the entire app</smell>
+</code_smells_that_suggest_vsa>
+<code_patterns_that_indicate_readiness>
+<pattern>Clear business domains with distinct workflows</pattern>
+<pattern>Independent structs/enums per business capability</pattern>
+<pattern>Use of Newtype pattern to separate domain concepts</pattern>
+</code_patterns_that_indicate_readiness>
+</pattern_detection>
+<implementation_priority>
+<level_1 name="Foundation" default_choice="true">
+<item priority="critical">Establish slice boundaries using Rust modules (mod feature_name)</item>
+<item priority="critical">Ensure slice independence (minimize pub use across slices)</item>
+<item priority="high">Implement basic error handling using Result and thiserror</item>
+</level_1>
+<level_2 name="Quality" apply_when="10+ slices OR team_size > 3">
+<item priority="high">Add comprehensive unit tests per slice (#[cfg(test)])</item>
+<item priority="high">Implement cross-cutting concerns via Tower middleware or Extractors</item>
+<item priority="medium">Establish consistent From/Into implementations for DTOs</item>
+</level_2>
+<level_3 name="Scale" apply_when="enterprise_context OR performance_issues">
+<item priority="medium">Add tracing instrumentation with performance metrics</item>
+<item priority="low">Optimize using Cargo Workspaces for compilation isolation and zero-cost abstractions</item>
+<item priority="low">Refine async runtimes (e.g., Tokio executor pinning) and thread pooling per slice requirements, ensuring Send + Sync bounds</item>
+</level_3>
+</implementation_priority>
+<context_adaptation>
+<small_project threshold="under_10_slices" default_response="simple">
+<focus>Basic module organization and independence</focus>
+<skip>Complex trait bounds, Cargo Workspaces, excessive generalization</skip>
+<simplify>Use concrete types instead of generics where possible</simplify>
+<ai_behavior>Emphasize simplicity, avoid over-engineering traits or async complexities</ai_behavior>
+</small_project>
+<medium_project threshold="10_to_50_slices" default_response="structured">
+<focus>Consistent patterns, shared infrastructure traits</focus>
+<add>Standardized error types, validator integration</add>
+<consider>Refactoring into libs if compile times suffer</consider>
+<ai_behavior>Balance structure with pragmatism, prioritizing borrow checker-friendly designs</ai_behavior>
+</medium_project>
+<enterprise_project threshold="over_50_slices" default_response="comprehensive">
+<implement>Cargo Workspaces, hexagonal architecture within slices</implement>
+<require>Strict orphan rule adherence, comprehensive integration tests</require>
+<mandate>Consistent API design, observability with tracing-subscriber</mandate>
+<ai_behavior>Prioritize strict compilation boundaries, compliance, and performance profiling</ai_behavior>
+</enterprise_project>
+</context_adaptation>
+<ai_response_templates>
+<scenario name="user_shows_layered_architecture" frequency="high">
+<detect>Structs grouped by technical layer (src/controllers, src/services, src/repositories)</detect>
+<suggest>Convert to feature-based modules grouping related functionality</suggest>
+<emphasize>Colocation of data structures and behavior</emphasize>
+<avoid>Mentioning complex enterprise patterns initially</avoid>
+<example_structure>src/features/create_post/, src/features/manage_users/</example_structure>
+</scenario>
+<scenario name="user_asks_about_coupling" frequency="medium">
+<detect>Questions about borrowing or Arc sharing between components</detect>
+<suggest>Slice independence through event channels (Tokio broadcast/mpsc) or clear API boundaries</suggest>
+<emphasize>Ownership isolation to prevent borrow checker fighting</emphasize>
+<provide>Decision tree for shared vs duplicated code</provide>
+</scenario>
+<scenario name="user_mentions_microservices" frequency="medium">
+<detect>Discussion of service decomposition</detect>
+<suggest>VSA as stepping stone to microservices</suggest>
+<emphasize>Business capability alignment</emphasize>
+<warn>Against premature service extraction</warn>
+</scenario>
+</ai_response_templates>
+<validation_prompts>
+<before_suggesting_vsa>
+<check>Are there 3+ distinct business capabilities?</check>
+<check>Is this more complex than simple CRUD operations?</check>
+<check>Would traditional layering actually work fine here?</check>
+<check>Does the user's context suggest team collaboration needs?</check>
+</before_suggesting_vsa>
+<before_complex_patterns>
+<check>Has the user indicated enterprise-scale requirements?</check>
+<check>Are there demonstrated performance or reliability issues?</check>
+<check>Is the added complexity justified by clear benefits?</check>
+</before_complex_patterns>
+</validation_prompts>
+<conflict_resolution>
+<primary_principle>Slice independence takes precedence over DRY principle</primary_principle>
+<exception>Pure infrastructure (DbPool, Redis, Logging) should be shared via dependency injection (State/Arc)</exception>
+<exception>Domain utilities (Newtypes, Shared Kernel) only after strict review</exception>
+<default_choice>When uncertain, favor duplication (Copy/Paste structs) to avoid lifetime entanglement</default_choice>
+<confidence_requirement>High confidence needed before suggesting shared generic traits</confidence_requirement>
+</conflict_resolution>
+<definition>
+<core_concept>Feature-oriented code organization rather than technical layers</core_concept>
+<organization>
+<principle>Group components by business capability</principle>
+<principle>Ensure high cohesion within slices</principle>
+<principle>Maintain loose coupling between slices</principle>
+</organization>
+<slice_identification>
+<criteria>Represents complete user workflow</criteria>
+<criteria>Can be developed independently</criteria>
+<criteria>Has measurable business value</criteria>
+<criteria>Aligns with team boundaries</criteria>
+</slice_identification>
+<module_visibility>
+<rule>Default to pub(crate) for internal slice items to prevent external access</rule>
+<rule>Use pub only for slice entry points (e.g., handlers, public traits)</rule>
+<rule>Avoid pub use re-exports across slices; prefer qualified paths</rule>
+<rule>For submodules, use pub(in super) to scope visibility within the slice</rule>
+</module_visibility>
+</definition>
+<decision_trees>
+<decision_tree name="slice_boundary_identification" ai_default="conservative">
+<condition>Does this represent a complete business use case?</condition>
+<yes confidence="high">Create separate module (mod)</yes>
+<no>
+<condition>Is this a variation with different business rules?</condition>
+<yes confidence="medium">Extend existing slice with Enum configuration</yes>
+<no confidence="low">Include in broader business capability</no>
+</no>
+</decision_tree>
+<decision_tree name="shared_component_decision" ai_default="duplicate">
+<condition>Is this pure infrastructure with no business logic?</condition>
+<yes confidence="high">Safe to share via Arc or State</yes>
+<no>
+<condition>Same logic in 3+ slices causing maintenance pain?</condition>
+<yes>
+<condition>Would sharing introduce complex lifetime parameters?</condition>
+<yes confidence="high">Keep duplicated - Fighting lifetimes is worse than duplication</yes>
+<no confidence="medium">Consider extraction to a common module or crate</no>
+</yes>
+<no confidence="high">Keep duplicated - premature optimization</no>
+</no>
+</decision_tree>
+<decision_tree name="vsa_applicability" ai_default="traditional_layers">
+<condition>Are there 3+ distinct business features?</condition>
+<no confidence="high">Suggest traditional layered architecture</no>
+<yes>
+<condition>Do features have independent business value?</condition>
+<no confidence="medium">Consider feature modules within layers</no>
+<yes>
+<condition>Multiple teams or complex workflows?</condition>
+<yes confidence="high">Recommend full VSA approach</yes>
+<no confidence="medium">Suggest lightweight VSA with simple structure</no>
+</yes>
+</yes>
+</decision_tree>
+<decision_tree name="dependency_injection_choice" ai_default="concrete">
+<condition>Is there only one implementation?</condition>
+<yes confidence="high">Use concrete types for simplicity and performance</yes>
+<no>
+<condition>Can types be resolved at compile time?</condition>
+<yes confidence="high">Use generics (impl Trait) for static dispatch</yes>
+<no confidence="medium">Use trait objects (dyn Trait) with Arc for sharing</no>
+</no>
+</decision_tree>
+<decision_tree name="visibility_choice" ai_default="restricted">
+<condition>Is the item an entry point (handler, public API)?</condition>
+<yes confidence="high">Use pub</yes>
+<no>
+<condition>Needed within the slice only?</condition>
+<yes confidence="medium">Use pub(crate) or pub(in super)</yes>
+<no confidence="low">Re-evaluate design; avoid exposure</no>
+</no>
+</decision_tree>
+</decision_trees>
+<framework_patterns>
+<rust_stack>
+<primary_tools>Axum/Actix-web, Tower Services, Serde, Validator, SQLx/Diesel</primary_tools>
+<structure>Feature modules with Handlers, Commands (DTOs), and Domain Logic</structure>
+<best_practice>Use "Parse, don't validate" principle with Serde and Type system; bound traits with Send + Sync for async safety</best_practice>
+<async_guidance>
+<rule>Ensure all cross-thread types implement Send + Sync</rule>
+<rule>Use tokio::spawn for background tasks; pin executors if multi-runtime</rule>
+<rule>Avoid blocking calls; prefer async alternatives (e.g., sqlx over blocking DB)</rule>
+</async_guidance>
+<example><![CDATA[ // src/features/create_post/mod.rs
+use axum::{extract::State, Json, response::IntoResponse};
+use serde::Deserialize;
+use validator::Validate;
+use std::sync::Arc;
+use thiserror::Error;
+use tracing::instrument;
+use anyhow::Context;
+#[derive(Deserialize, Validate)]
+#[serde(deny_unknown_fields)]
+pub struct CreatePostCommand {
+#[validate(length(min = 1, max = 200))]
+pub title: String,
+#[validate(length(min = 1))]
+pub content: String,
+}
+#[derive(Debug)]
+pub struct Post {
+pub title: String,
+pub content: String,
+}
+impl Post {
+pub fn new(title: String, content: String) -> Self {
+Self { title, content }
+}
+}
+#[instrument(skip_all)]
+pub async fn handler(
+State(repo): State<Arc<dyn PostRepository>>,
+Json(cmd): Json<CreatePostCommand>,
+) -> Result<impl IntoResponse, AppError> {
+cmd.validate().map_err(AppError::Validation)?;
+let post = Post::new(cmd.title, cmd.content);
+let id = repo.save(post)
+.await
+.context("Failed to save post")?;
+Ok(Json(id))
+}
+#[async_trait::async_trait]
+pub trait PostRepository: Send + Sync + 'static {
+async fn save(&self, post: Post) -> Result<i32, anyhow::Error>;
+} ]]></example>
+</rust_stack>
+</framework_patterns>
+<error_handling>
+<principle>Each slice handles its own errors, converting to a common AppError at the edge with context</principle>
+<error_types>
+<business_errors>
+<description>Validation, invariants (4xx)</description>
+<handling>Use thiserror for domain errors, map to status codes</handling>
+</business_errors>
+<infrastructure_errors>
+<description>DB, Network (5xx)</description>
+<handling>Use anyhow for internal context, map to generic 500 for client</handling>
+</infrastructure_errors>
+</error_types>
+<patterns>
+<pattern name="fail_fast" ai_default="true">
+<description>Validate inputs early, fail immediately on invalid data</description>
+</pattern>
+<pattern name="graceful_degradation" ai_apply_when="external_dependencies">
+<description>Handle external failures without breaking core functionality</description>
+</pattern>
+<pattern name="error_boundary">
+<description>Convert slice-internal errors to AppError at handler edges</description>
+</pattern>
+</patterns>
+<preferred_return_types>
+<rust>Result<T, AppError></rust>
+</preferred_return_types>
+<example></example>
+</error_handling>
+<testing_strategies>
+<ai_testing_priorities>
+<priority_1>Unit tests for Domain Logic (Post::new)</priority_1>
+<priority_2>Mocked Handler tests (using mockall)</priority_2>
+<priority_3>Integration tests spawning the app (black box)</priority_3>
+</ai_testing_priorities>
+<slice_testing>
+<isolation>Test each slice in its own mod tests within the feature file</isolation>
+<coverage>Focus on business rules. Use property-based testing (proptest) for complex domains.</coverage>
+<scenarios>Happy path, validation failures, infrastructure errors</scenarios>
+</slice_testing>
+<example><![CDATA[ #[cfg(test)]
+mod tests {
+use super::*;
+use mockall::mock;
+use anyhow::Result as AnyResult;
+mock! {
+pub PostRepository {}
+#[async_trait::async_trait]
+impl PostRepository for PostRepository {
+async fn save(&self, post: Post) -> AnyResult<i32>;
+}
+}
+#[tokio::test]
+async fn handle_valid_command_returns_post_id() {
+let mut mock_repo = MockPostRepository::new();
+mock_repo.expect_save().returning(|_| Ok(42));
+let cmd = CreatePostCommand {
+title: "Title".to_string(),
+content: "Content".to_string()
+};
+let result = handler(State(Arc::new(mock_repo)), Json(cmd)).await;
+assert!(result.is_ok());
+}
+} ]]></example>
+</testing_strategies>
+<cross_cutting_concerns>
+<ai_implementation_order>
+<step_1>Logging - Inject tracing::instrument on handlers with span fields</step_1>
+<step_2>Validation - Use validator derive macros on DTOs</step_2>
+<step_3>Authorization - Use Tower Middleware or Extractor Guards with feature-specific policies</step_3>
+<step_4>State - Use Arc<AppState> or generic State injection</step_4>
+</ai_implementation_order>
+<logging>
+<approach>Structured logging (tracing) with slice context; integrate with errors via anyhow::Context</approach>
+<example>#[instrument(skip_all, fields(slice = "create_post"))]</example>
+</logging>
+<authorization>
+<approach>Feature-based permissions verified in Extractors; compose middleware for global auth</approach>
+<example>Use axum::middleware::from_fn for slice-specific checks</example>
+</authorization>
+<caching>
+<approach>Cache at slice output level, not internally; use tower::Service for cache layers</approach>
+</caching>
+</cross_cutting_concerns>
+<slice_communication>
+<principle>Favor asynchronous, event-driven communication over direct calls</principle>
+<patterns>
+<pattern name="events" ai_default="true">
+<description>Use Tokio channels (mpsc, broadcast) for pub/sub between slices</description>
+</pattern>
+<pattern name="domain_events">
+<description>Emit events from slices; handle in subscribers without tight coupling</description>
+</pattern>
+</patterns>
+<warnings>
+<warn>Avoid synchronous calls between slices to prevent blocking</warn>
+<warn>Use message queues for high-scale; start with in-process channels</warn>
+</warnings>
+<decision_tree name="communication_choice" ai_default="async_event">
+<condition>Does the interaction require immediate response?</condition>
+<yes confidence="medium">Use async function calls with clear interfaces</yes>
+<no confidence="high">Use events or pub/sub for decoupling</no>
+</decision_tree>
+</slice_communication>
+<migration_strategies>
+<ai_migration_approach>
+<step_1>Identify clear business boundaries</step_1>
+<step_2>Extract simplest, most isolated features first</step_2>
+<step_3>Use strangler fig pattern for complex features</step_3>
+<step_4>Maintain parallel running until confidence is high</step_4>
+</ai_migration_approach>
+<strangler_fig_pattern>
+<description>Gradually replace legacy with VSA slices</description>
+<implementation>Route new requests to VSA slices, legacy handles existing</implementation>
+<safety>Feature flags for rollback, monitoring for comparison</safety>
+</strangler_fig_pattern>
+</migration_strategies>
+<workspace_guidance>
+<structure>
+<root_cargo_toml>[workspace] members = ["crates/*"]</root_cargo_toml>
+<slice_crates>Each slice as a lib crate (e.g., crates/create_post); binary in root or separate</slice_crates>
+<shared>Common infra in crates/infra; avoid business logic here</shared>
+</structure>
+<best_practices>
+<practice>Use [dependencies] with path = "../infra" for isolation</practice>
+<practice>Enable parallel compilation with cargo --workspace</practice>
+<practice>Benchmark slices independently with criterion</practice>
+</best_practices>
+</workspace_guidance>
+<quick_reference>
+<do>
+<item>Organize by business features (src/features/xyz), not layers</item>
+<item>Use Arc<dyn Trait> or generics for dependency injection</item>
+<item>Accept code duplication (structs) to decouple lifetimes</item>
+<item>Use strict types (Newtypes) to enforce business rules</item>
+<item>Implement fail-fast validation with Serde/Validator</item>
+<item>Bound async traits with Send + Sync + 'static</item>
+</do>
+<dont>
+<item>Share mutable state between slices (avoid Mutex across boundaries if possible)</item>
+<item>Create "God Traits" implemented by a single massive service</item>
+<item>Leak database entities (Diesel/SQLx structs) directly to the API response</item>
+<item>Use unwrap() in slice logic</item>
+<item>Expose internal details via permissive pub</item>
+</dont>
+<ai_defaults>
+<rule>When uncertain, separate modules.</rule>
+<rule>Favor duplication over complex lifetime management.</rule>
+<rule>Use Result propagation (?) consistently.</rule>
+<rule>Default to generics for DI unless polymorphism needed.</rule>
+</ai_defaults>
+</quick_reference>
+<anti_patterns>
+<ai_warning_signs>
+<pattern name="premature_vsa">Applying VSA to simple applications without business complexity</pattern>
+<pattern name="shared_business_logic">Creating shared libraries for business rules between slices</pattern>
+<pattern name="god_slice">Single slice handling multiple unrelated business capabilities</pattern>
+<pattern name="chatty_slices">Excessive synchronous communication between slices</pattern>
+<pattern name="technical_slices">Organizing by technical concerns instead of business features</pattern>
+<pattern name="lifetime_hell">Over-sharing references leading to borrow checker battles</pattern>
+</ai_warning_signs>
+</anti_patterns>
+<suitability>
+<ai_decision_matrix>
+<high_fit confidence="high">
+<criteria>Multiple distinct business features</criteria>
+<criteria>Team collaboration complexity</criteria>
+<criteria>Independent feature deployment needs</criteria>
+<criteria>Clear business domain boundaries</criteria>
+</high_fit>
+<medium_fit confidence="medium">
+<criteria>Growing application with emerging complexity</criteria>
+<criteria>Migration from monolithic architecture</criteria>
+<criteria>Event-driven requirements</criteria>
+</medium_fit>
+<low_fit confidence="high">
+<criteria>Simple CRUD with minimal business logic</criteria>
+<criteria>Single developer projects</criteria>
+<criteria>Highly interconnected computational logic</criteria>
+<criteria>Unclear business boundaries</criteria>
+</low_fit>
+</ai_decision_matrix>
+</suitability>
+<type_safety>
+<general>
+<rule id="explicit_types">Emit explicit types for public APIs and boundary inputs/outputs.</rule>
+<rule id="newtype_pattern">Use Newtypes (struct UserId(Uuid)) to prevent parameter swapping.</rule>
+<rule id="ownership">Express ownership & lifetimes explicitly. Avoid Clone just to satisfy the compiler unless necessary.</rule>
+<rule id="error_handling">Return Result<T, E>, avoid unwrap()/expect() in production code.</rule>
+<rule id="numeric_types">Use explicit integer widths (u32, i64) matching domain constraints.</rule>
+<rule id="serde_safety">Use #[serde(deny_unknown_fields)] where strict contracts are required.</rule>
+<rule id="performance">Favor zero-cost abstractions; profile with criterion for bottlenecks.</rule>
+</general>
+<pipeline>
+<step>Generate with full signatures + assumptions.</step>
+<step>Run cargo check and cargo clippy.</step>
+<step>Auto-apply fixes for borrow checker issues (e.g., adding & or .clone() where semantically appropriate).</step>
+</pipeline>
+<ci_checks>cargo clippy, cargo test, cargo fmt, cargo audit</ci_checks>
+</type_safety>
+</vertical_slice_guidelines_rust>

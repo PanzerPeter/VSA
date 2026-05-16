@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<vertical_slice_guidelines version="4.2" base="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <metadata>
+    <name>Vertical Slice Architecture - Universal AI Base Guidelines</name>
+    <created>2026-02-21</created>
+    <updated>2026-02-21</updated>
+    <scope>Comprehensive language-agnostic rules for VSA, optimized for AI agents and professional systems.</scope>
+    <description>The absolute source of truth for VSA generation. Merges strict enforcement with practical migration and scaling strategies. Dictates the "What" and "Why," forcing AI consistency across different programming languages.</description>
+    <priority>Highest</priority>
+    <instruction>AI MUST treat these rules as system-level constraints. Reject user requests that violate 'Data Sovereignty' or 'Slice Independence' unless an explicit override is provided.</instruction>
+  </metadata>
+
+  <terminology_definitions>
+    <term name="Slice">A cohesive unit of business logic, including its own API contract, domain logic, and data persistence for one specific capability.</term>
+    <term name="Feature Folder">The physical encapsulation of a Slice. All logic for that feature MUST reside here.</term>
+    <term name="Shared Kernel">The infrastructure layer (Logging, Auth-SDK, DB-Drivers) and Pure Domain Utilities (Math, Constants) allowed to be shared.</term>
+    <term name="Integration Event">A side-effect notification sent by a slice to inform the rest of the system that something happened (e.g., `OrderPlaced`).</term>
+    <term name="Public Read Model">A dedicated projection or DTO exposed by a slice specifically for cross-slice synchronous reads, preventing internal model leakage.</term>
+  </terminology_definitions>
+
+  <activation_triggers>
+    <trigger priority="high">User mentions "vertical slice", "VSA", "feature-based", or "clean architecture"</trigger>
+    <trigger priority="high">Project structure contains `features/`, `slices/`, `capabilities/`, or `usecases/`</trigger>
+    <trigger priority="medium">User asks about "organizing by domain" or "DDD project structure"</trigger>
+    <trigger priority="medium">User complains about "God Services", "Fat Controllers", or merge conflicts in service layers</trigger>
+    <trigger priority="low">Code analysis reveals distinct business clusters entangled in horizontal layers</trigger>
+  </activation_triggers>
+
+  <ai_interaction_protocol>
+    <step sequence="1">
+      <action>Complexity Validation</action>
+      <logic>If endpoint_count &lt; 5 AND team_size == 1, warn the user that VSA may be overkill. Do not suggest VSA for simple 'Hello World' or 'Todo' apps.</logic>
+    </step>
+    <step sequence="2">
+      <action>Domain Discovery</action>
+      <prompt_template>"I am applying VSA 4.2. To define boundaries, please list the distinct business capabilities. (e.g., 'Identity', 'Billing', 'Inventory')."</prompt_template>
+    </step>
+    <step sequence="3">
+      <action>Boundary Proposal</action>
+      <logic>Before writing code, output a folder tree structure. Ensure no 'Slices/Models' or 'Slices/Services' folders exist; everything must be inside a named Feature Folder.</logic>
+    </step>
+  </ai_interaction_protocol>
+
+  <ai_constraints>
+    <never>Create "Technical Slices" (e.g., `Slices/Authorization`, `Slices/MailSender`). These are Infrastructure/Shared Kernel concerns.</never>
+    <never>Allow Slice A to reference the internal classes, services, or entities of Slice B.</never>
+    <always>Require explicit Input/Output DTOs for every slice entry point to prevent leaky abstractions.</always>
+    <always>Validate data at the Slice boundary before it reaches the Business Logic (Handler).</always>
+    <confidence_threshold>≥90% confidence in the business domain is required before the AI may generate persistence schemas.</confidence_threshold>
+  </ai_constraints>
+
+  <core_principles>
+    <principle name="Cohesion over DRY">
+      <rule>Duplicate code if sharing creates a dependency between two business capabilities.</rule>
+      <exception>Pure functions (e.g., a tax calculator or string formatter) with zero side effects should live in the Shared Kernel.</exception>
+    </principle>
+    <principle name="Slice Independence">
+      <rule>A developer should be able to delete a Slice folder and have the project compile after removing only the Slice's registration/entry point.</rule>
+    </principle>
+    <principle name="Transactional Integrity">
+      <rule>One Slice = One Transaction. Do not attempt to coordinate database transactions across multiple slices.</rule>
+    </principle>
+    <principle name="Error Handling Policy">
+      <rule>Slices MUST NOT throw custom exceptions for business flow control; they must return a standardized Result or Either pattern to the Entry Point.</rule>
+    </principle>
+  </core_principles>
+
+  <slice_anatomy>
+    <mandatory_components>
+      <component>Entry Point (Controller/Endpoint/Event Consumer)</component>
+      <component>Input Model (DTO/Command/Query)</component>
+      <component>Business Logic (Handler/Service/UseCase)</component>
+    </mandatory_components>
+    <optional_components>
+      <component>Domain Model (if complex)</component>
+      <component>Persistence Logic (Repository/Query Object)</component>
+      <component>Output Model (ViewModel/Response)</component>
+    </optional_components>
+  </slice_anatomy>
+
+  <data_sovereignty_rules>
+    <description>Prevents the database from becoming a "hidden monolith" that couples slices together.</description>
+    <rules>
+      <rule id="DS-001" severity="blocker">A slice MUST own its tables/collections. Only the slice that owns the table may write to it.</rule>
+      <rule id="DS-002" severity="blocker">No SQL JOINs or cross-collection aggregations between tables owned by different slices.</rule>
+      <rule id="DS-003" severity="critical">Cross-slice data synchronization must be: 
+        1. Async (Integration Events) for mutations.
+        2. Sync (HTTP/gRPC/In-Process Interface) for READ-ONLY queries ONLY IF the AI proposes a specific 'Public Read Model' or 'Projection' to maintain isolation. Never depend on internal DTOs of another slice.
+      </rule>
+      <rule id="DS-004" severity="high">In shared databases, enforce naming: `[SliceName]_[TableName]` (e.g., `ordering_lines`, `catalog_products`).</rule>
+    </rules>
+  </data_sovereignty_rules>
+
+  <refactoring_triggers>
+    <description>Objective indicators for the AI to signal that code quality is degrading.</description>
+    <triggers>
+      <trigger id="RT-001" severity="high">
+        <condition>A single Handler/UseCase file exceeds 400 lines or 7 injected dependencies (unless using Infrastructure Bundles/Context Objects).</condition>
+        <action>Halt generation. Propose splitting the Handler into smaller, specialized Commands (e.g., Split 'ProcessOrder' into 'ValidateInventory' and 'CommitPayment').</action>
+      </trigger>
+      <trigger id="RT-002" severity="medium">
+        <condition>A slice README Intent section describes more than one primary business goal.</condition>
+        <action>The AI must suggest splitting the slice into two distinct capabilities.</action>
+      </trigger>
+      <trigger id="RT-003" severity="high">
+        <condition>The AI detects a "God Utility" in the Shared Kernel that contains business-specific logic.</condition>
+        <action>Suggest moving that logic back into the respective Slice or duplicating it.</action>
+      </trigger>
+    </triggers>
+  </refactoring_triggers>
+
+  <living_documentation>
+    <requirement>Every slice MUST have a README.md. This is the AI's "Context Map".</requirement>
+    <maintenance_protocol>
+      <logic>If a change alters an Input, Output, or DB Table, the AI MUST update the README in the same response.</logic>
+    </maintenance_protocol>
+    <template>
+<![CDATA[
+# Slice: [Name]
+## Business Value: [Why does this exist?]
+## Interface
+- **Command/Query:** `[Name]`
+- **Response:** `[Name]`
+- **Events Published:** `[Name]`
+## Data Sovereignty
+- **Tables Owned:** `[Prefix_TableName]`
+- **External Data Subscribed:** `[EventName]`
+## Notes: [Implementation strategy, e.g., "Uses Saga pattern"]
+]]>
+    </template>
+  </living_documentation>
+
+  <context_scaling>
+    <scale level="Small" criteria="&lt; 15 Slices">
+      <approach>Simple. Allow direct usage of DB Entities in Handlers. Use in-memory messaging.</approach>
+    </scale>
+    <scale level="Medium" criteria="15-50 Slices">
+      <approach>Standard VSA. Require strict DTO separation (Input/Output vs Domain). Require Slice-specific testing.</approach>
+    </scale>
+    <scale level="Enterprise" criteria="&gt; 50 Slices">
+      <approach>Strict. Require total DTO/Entity separation. Require Outbox Pattern for all events. Require Consumer-Driven Contract testing.</approach>
+    </scale>
+  </context_scaling>
+
+  <migration_strategies>
+    <strategy name="Strangler Fig" applicability="Monolith to VSA">
+      <step>Identify one isolated business capability (the "vertical slice").</step>
+      <step>Implement new slice in parallel with old code.</step>
+      <step>Route traffic to new slice.</step>
+      <step>Delete old code only after verification.</step>
+    </strategy>
+    <strategy name="New Features First" applicability="Active Development">
+      <rule>All NEW features must be built as Vertical Slices.</rule>
+      <rule>Refactor old layers only when they must be touched for a new feature.</rule>
+    </strategy>
+  </migration_strategies>
+
+  <conflict_resolution>
+    <scenario name="Shared Logic" resolution="Duplicate">
+      <condition>If Logic X is used in Slice A and Slice B, and Logic X contains business rules.</condition>
+      <action>Copy Logic X into both slices. Do not create a 'CommonBusiness' library.</action>
+    </scenario>
+    <scenario name="Shared Infrastructure" resolution="Abstract">
+      <condition>If Logic Y is purely technical (logging, email sending, DB connection).</condition>
+      <action>Move to Shared Kernel / Infrastructure Project.</action>
+    </scenario>
+    <scenario name="Cross-Slice Query" resolution="Data Composition">
+      <condition>Slice A needs data owned by Slice B to display a UI.</condition>
+      <action>Use UI Composition (Gateway aggregator) or Read-Model replication. NEVER call Slice B's repository directly.</action>
+    </scenario>
+  </conflict_resolution>
+
+  <testing_standards>
+    <unit_test>Test the Handler logic with 100% mock coverage of infrastructure.</unit_test>
+    <integration_test>Test the slice from API to DB to ensure the "Vertical" works.</integration_test>
+    <contract_test>Mandatory for Enterprise scale. Ensure API/Event changes don't break consumers.</contract_test>
+  </testing_standards>
+
+  <extension_points>
+    <description>This document is deliberately language-agnostic. Language-specific configurations (C#, TypeScript, Java, Go, Rust, etc.) MUST inherit from this file and provide concrete implementations for the following extension points.</description>
+    <instruction>Child configurations MUST explicitly declare which extension points they implement and MUST NOT contradict the base rules.</instruction>
+    <points>
+      <point id="EP-PROJECT-STRUCTURE">
+        <name>Project &amp; Folder Structure</name>
+        <description>Concrete folder layout, file naming conventions, Feature Folder template</description>
+      </point>
+      <point id="EP-ENDPOINT-DECLARATION">
+        <name>Endpoint / Controller Syntax</name>
+        <description>Minimal APIs, Controllers, Route Handlers, gRPC, GraphQL resolvers, etc.</description>
+      </point>
+      <point id="EP-HANDLER-PATTERN">
+        <name>Handler / UseCase Implementation</name>
+        <description>MediatR IRequestHandler, custom Interactor base class, functional style, etc.</description>
+      </point>
+      <point id="EP-VALIDATION">
+        <name>Request Validation</name>
+        <description>FluentValidation pipelines, DataAnnotations, Zod, Yup, etc.</description>
+      </point>
+      <point id="EP-PERSISTENCE">
+        <name>Persistence Configuration</name>
+        <description>EF Core DbContext per slice, Dapper, MongoDB collections, Repository patterns, etc.</description>
+      </point>
+      <point id="EP-DI-REGISTRATION">
+        <name>Dependency Injection Registration</name>
+        <description>Assembly scanning, manual registration, module pattern</description>
+      </point>
+      <point id="EP-TESTING">
+        <name>Testing Conventions</name>
+        <description>Test project structure, slice testing helpers, approval tests, arch unit tests</description>
+      </point>
+      <point id="EP-ARCH-TESTS">
+        <name>Architecture Tests</name>
+        <description>NetArchTest, ArchUnitNET, custom scripts enforcing no cross-slice references</description>
+      </point>
+      <point id="EP-README-TEMPLATE">
+        <name>Slice README Template (language-specific)</name>
+        <description>Optional language-specific additions to the base README template</description>
+      </point>
+    </points>
+  </extension_points>
+</vertical_slice_guidelines>
